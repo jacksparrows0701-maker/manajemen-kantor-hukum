@@ -236,14 +236,7 @@
       var input = document.getElementById(inputId);
       var list = document.getElementById(listId);
       var data = [];
-      input.addEventListener('focus', function() {
-        if (data.length === 0) {
-          fetch(WEB_APP_URL + '?action=getData&sheet=' + encodeURIComponent(sheetName))
-            .then(function(r) { return r.json(); })
-            .then(function(res) { if (res.data) data = res.data; });
-        }
-      });
-      input.addEventListener('input', function() {
+      function showDropdown() {
         var val = input.value.toLowerCase();
         list.innerHTML = '';
         var filtered = data.filter(function(r) {
@@ -260,8 +253,18 @@
           });
           list.appendChild(div);
         });
-        list.classList.toggle('show', filtered.length > 0 && val.length > 0);
+        list.classList.toggle('show', filtered.length > 0);
+      }
+      input.addEventListener('focus', function() {
+        if (data.length === 0) {
+          fetch(WEB_APP_URL + '?action=getData&sheet=' + encodeURIComponent(sheetName))
+            .then(function(r) { return r.json(); })
+            .then(function(res) { if (res.data) { data = res.data; showDropdown(); } });
+        } else {
+          showDropdown();
+        }
       });
+      input.addEventListener('input', function() { showDropdown(); });
       input.addEventListener('blur', function() { setTimeout(function() { list.classList.remove('show'); }, 200); });
     }
     initAc('idKlien', 'acIdKlien', 'Data Klien', 'ID', 'Nama');
