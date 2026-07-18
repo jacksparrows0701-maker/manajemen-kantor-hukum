@@ -1288,3 +1288,184 @@ function lihatRingkasan() {
 
   SpreadsheetApp.getUi().alert(msg);
 }
+
+// ============================================================
+// 22. NOTIFIKASI WhatsApp (Fonnte API)
+// ============================================================
+// Cara setup:
+// 1. Buka fonnte.com → daftar → dapat API Key
+// 2. Buka WhatsApp → kirim pesan ke nomor Fonnte untuk connect
+// 3. Isi API_KEY di bawah ini
+// ============================================================
+
+var WHATSAPP_CONFIG = {
+  API_KEY: 'FONNTE_API_KEY_HERE',   // Ganti dengan API Key Fonnte
+  NOMOR_PENGACARA: '6285759977665'   // Nomor WhatsApp pengacara (format: 62xxx)
+};
+
+function kirimNotifWhatsApp(nomorTujuan, pesan) {
+  var url = 'https://api.fonnte.com/send';
+  var payload = {
+    target: nomorTujuan,
+    message: pesan
+  };
+  var options = {
+    method: 'POST',
+    headers: {
+      'Authorization': WHATSAPP_CONFIG.API_KEY,
+      'Content-Type': 'application/json'
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+  try {
+    var response = UrlFetchApp.fetch(url, options);
+    var json = JSON.parse(response.getContentText());
+    Logger.log('WA terkirim ke ' + nomorTujuan + ': ' + JSON.stringify(json));
+    return json;
+  } catch (e) {
+    Logger.log('Error kirim WA: ' + e.message);
+    return { status: 'error', message: e.message };
+  }
+}
+
+function formatRupiah(angka) {
+  return 'Rp' + Number(angka).toLocaleString('id-ID');
+}
+
+// ============================================================
+// 23. CEK JADWAL & KIRIM NOTIFIKASI (Jalankan otomatis setiap hari)
+// ============================================================
+// Cara setup:
+// 1. Jalankan function `setupTriggerNotif()` sekali
+// 2. Atau buat manual: Extensions → Apps Script → Triggers → Add Trigger
+//    - Function: cekJadwalDanKirimNotif
+//    - Time source: Time-driven
+//    - Type: Day timer
+//    - Time: 07:00 (jam 7 pagi setiap hari)
+// ============================================================
+
+function cekJadwalDanKirimNotif() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var jadwalSheet = ss.getSheetByName(CONFIG.SHEETS.JADWAL);
+  var kasusSheet = ss.getSheetByName(CONFIG.SHEETS.KASUS);
+  var klienSheet = ss.getSheetByName(CONFIG.SHEETS.KLIEN);
+  var lawanSheet = ss.getSheetByName(CONFIG.SHEETS.LAWAN);
+
+  if (!jadwalSheet || jadwalSheet.getLastRow() <= 1) return;
+
+  var dataJadwal = jadwalSheet.getDataRange().getValues();
+  var dataKasus = kasusSheet && kasusSheet.getLastRow() > 1 ? kasusSheet.getDataRange().getValues() : [];
+  var dataKlien = klienSheet && klienSheet.getLastRow() > 1 ? klienSheet.getDataRange().getValues() : [];
+  var dataLawan = lawanSheet && lawanSheet.getLastRow() > 1 ? lawanSheet.getDataRange().getValues() : [];
+
+  var now = new Date();
+  var hariIni = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  for (var i = 1; i < dataJadwal.length; i++) {
+    var tglJadwal = new Date(dataJadwal[i][3]);
+    var tglOnly = new Date(tglJadwal.getFullYear(), tglJadwal.getMonth(), tglJadwal.getDate());
+    var diffHari = Math.round((tglOnly - hariIni) / (1000 * 60 * 60 * 24));
+    var status = dataJadwal[i][6];
+
+    if (status === 'Dibatalkan' || status === 'Selesai') continue;
+
+    // Kirim notif: 3 hari sebelum, 1 hari sebelum, hari H
+    if (diffHari === 3 || diffHari === 1 || diffHari === 0) {
+      var idKasus = dataJadwal[i][1];
+      var tipeJadwal = dataJadwal[i][2];
+      var waktu = dataJadwal[i][4];
+      var lokasi = dataJadwal[i][5];
+
+      // Format waktu
+      if (waktu instanceof Date) {
+        waktu = Utilities.formatDate(waktu, 'Asia/Jakarta', 'HH:mm');
+      }
+
+      // Cari nama klien & lawan dari kasus
+      var namaKlien = '-', namaLawan = '-', tipeKasus = '-';
+      for (var k = 1; k < dataKasus.length; k++) {
+        if (dataKasus[k][0] === idKasus) {
+          var idKlien = dataKasus[k][1];
+          var idLawan = dataKasus[k][2];
+          tipeKasus = dataKasus[k][3];
+          for (var kl = 1; kl < dataKlien.length; kl++) {
+            if (dataKlien[kl][0] === idKlien) { namaKlien = dataKlien[kl][1]; break; }
+          }
+          for (var lw = 1; lw < dataLawan.length; lw++) {
+            if (dataLawan[lw][0] === idLawan) { namaLawan = dataLawan[lw][2]; break; }
+          }
+          break;
+        }
+      }
+
+      // Label waktu
+      var labelWaktu = '';
+      if (diffHari === 0) labelWaktu = '🔴 HARI INI';
+      else if (diffHari === 1) labelWaktu = '🟡 BESOK';
+      else if (diffHari === 3) labelWaktu = '🟢 3 HARI LAGI';
+
+      var tanggalFormatted = Utilities.formatDate(tglJadwal, 'Asia/Jakarta', 'dd MMMM yyyy');
+
+      var pesan = '📋 *PENGINGAT ' + tipeJadwal.toUpperCase() + '*\n\n';
+      pesan += labelWaktu + '\n';
+      pesan += '📅 Tanggal: ' + tanggalFormatted + '\n';
+      pesan += '⏰ Waktu: ' + waktu + '\n';
+      pesan += '📍 Lokasi: ' + lokasi + '\n';
+      pesan += '⚖️ Kasus: ' + tipeKasus + '\n';
+      pesan += '👤 Klien: ' + namaKlien + '\n';
+      pesan += '👤 Lawan: ' + namaLawan + '\n';
+      pesan += '📌 Status: ' + status + '\n';
+
+      if (dataJadwal[i][7]) {
+        pesan += '📝 Keterangan: ' + dataJadwal[i][7] + '\n';
+      }
+
+      pesan += '\n🏢 ' + KANTOR.nama;
+
+      // Kirim ke nomor pengacara
+      kirimNotifWhatsApp(WHATSAPP_CONFIG.NOMOR_PENGACARA, pesan);
+
+      Logger.log('Notif terkirim: ' + tipeJadwal + ' ' + tanggalFormatted + ' (' + labelWaktu + ')');
+    }
+  }
+}
+
+// ============================================================
+// 24. SETUP TRIGGER OTOMATIS (Jalankan sekali saja)
+// ============================================================
+function setupTriggerNotif() {
+  // Hapus trigger lama
+  var triggers = ScriptApp.getProjectTriggers();
+  for (var i = 0; i < triggers.length; i++) {
+    if (triggers[i].getHandlerFunction() === 'cekJadwalDanKirimNotif') {
+      ScriptApp.deleteTrigger(triggers[i]);
+    }
+  }
+
+  // Buat trigger baru: setiap hari jam 7 pagi
+  ScriptApp.newTrigger('cekJadwalDanKirimNotif')
+    .timeBased()
+    .everyDays(1)
+    .atHour(7)
+    .create();
+
+  Logger.log('Trigger notifikasi sudah dibuat: setiap hari jam 07:00');
+}
+
+// ============================================================
+// 25. TEST NOTIFIKASI (Jalankan untuk test)
+// ============================================================
+function testNotifWhatsApp() {
+  var pesan = '✅ *TEST NOTIFIKASI*\n\n';
+  pesan += 'Notifikasi sidang sudah aktif!\n';
+  pesan += 'Anda akan menerima pengingat:\n';
+  pesan += '• 3 hari sebelum sidang\n';
+  pesan += '• 1 hari sebelum sidang\n';
+  pesan += '• Hari H sidang\n\n';
+  pesan += '🏢 ' + KANTOR.nama;
+
+  var result = kirimNotifWhatsApp(WHATSAPP_CONFIG.NOMOR_PENGACARA, pesan);
+  Logger.log('Test result: ' + JSON.stringify(result));
+  return result;
+}
