@@ -117,22 +117,18 @@
         keterangan: form.keterangan.value
       };
 
+      function showSuccess() {
+        document.getElementById('formDokumen').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Dokumen';
+      }
+      var timeout = setTimeout(showSuccess, 8000);
       fetch(WEB_APP_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(data)
-      }).then(function() {
-        document.getElementById('formDokumen').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Simpan Dokumen';
-      }).catch(function() {
-        document.getElementById('formDokumen').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Simpan Dokumen';
-      });
+      }).then(function() { clearTimeout(timeout); showSuccess(); }).catch(function() { clearTimeout(timeout); showSuccess(); });
     });
 
     function resetForm() {

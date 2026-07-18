@@ -107,22 +107,18 @@
         oleh: form.oleh.value
       };
 
+      function showSuccess() {
+        document.getElementById('formCatatan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Catatan';
+      }
+      var timeout = setTimeout(showSuccess, 8000);
       fetch(WEB_APP_URL, {
         method: 'POST',
         mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify(data)
-      }).then(function() {
-        document.getElementById('formCatatan').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Simpan Catatan';
-      }).catch(function() {
-        document.getElementById('formCatatan').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Simpan Catatan';
-      });
+      }).then(function() { clearTimeout(timeout); showSuccess(); }).catch(function() { clearTimeout(timeout); showSuccess(); });
     });
 
     function resetForm() {
