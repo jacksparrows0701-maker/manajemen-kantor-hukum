@@ -137,6 +137,32 @@
       <div id="errorKuasa" class="error-msg"></div>
     </div>
 
+    <!-- Generate E-Court -->
+    <div class="form-card">
+      <h3>Generate Surat E-Court</h3>
+      <div class="info-box">
+        Surat Persetujuan Beracara Secara Elektronik (E-Court)
+      </div>
+      <div class="row">
+        <div class="form-group">
+          <label>ID Klien <span class="req">*</span></label>
+          <div class="ac-wrap">
+            <input type="text" id="idKlienECourt" placeholder="Klik untuk pilih..." autocomplete="off">
+            <div class="ac-list" id="acIdKlienECourt"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Pengadilan <span class="req">*</span></label>
+          <input type="text" id="pengadilanECourt" placeholder="Contoh: Pengadilan Agama Bandung" required>
+        </div>
+      </div>
+      <button class="btn btn-purple" onclick="generateECourt(event)">Generate E-Court</button>
+      <div id="resultECourt" class="result">
+        E-Court berhasil! <a id="linkECourt" href="#" target="_blank">Buka Surat E-Court</a>
+      </div>
+      <div id="errorECourt" class="error-msg"></div>
+    </div>
+
     <!-- Generate Invoice -->
     <div class="form-card">
       <h3>Generate Invoice PDF</h3>
@@ -198,6 +224,7 @@
     initAc('idLawanSemua', 'acIdLawanSemua', 'Data Lawan', 'ID', 'Nama');
     initAc('idKlienKuasa', 'acIdKlienKuasa', 'Data Klien', 'ID', 'Nama');
     initAc('idLawanKuasa', 'acIdLawanKuasa', 'Data Lawan', 'ID', 'Nama');
+    initAc('idKlienECourt', 'acIdKlienECourt', 'Data Klien', 'ID', 'Nama');
     initAc('idTagihan', 'acIdTagihan', 'Data Tagihan', 'ID', 'No Invoice');
 
     function generateSemua(e) {
@@ -270,6 +297,40 @@
         document.getElementById('errorKuasa').textContent = 'Error: ' + e.message;
         document.getElementById('errorKuasa').style.display = 'block';
         btn.disabled = false; btn.textContent = 'Generate Surat Kuasa';
+      });
+    }
+
+    function generateECourt(e) {
+      var idKlien = document.getElementById('idKlienECourt').value;
+      var pengadilan = document.getElementById('pengadilanECourt').value;
+      if (!idKlien || !pengadilan) return alert('Semua field wajib diisi');
+      var btn = e.target;
+      btn.disabled = true; btn.textContent = 'Generating...';
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'generateSuratECourt', idKlien: idKlien, pengadilan: pengadilan })
+      }).then(function(r) { return r.text(); }).then(function(t) {
+        try {
+          var res = JSON.parse(t);
+          if (res.success) {
+            document.getElementById('linkECourt').href = res.link;
+            document.getElementById('resultECourt').style.display = 'block';
+            document.getElementById('errorECourt').style.display = 'none';
+          } else {
+            document.getElementById('errorECourt').textContent = res.message || 'Gagal generate';
+            document.getElementById('errorECourt').style.display = 'block';
+          }
+        } catch(e) {
+          document.getElementById('errorECourt').textContent = 'Response tidak valid';
+          document.getElementById('errorECourt').style.display = 'block';
+        }
+        btn.disabled = false; btn.textContent = 'Generate E-Court';
+      }).catch(function(e) {
+        document.getElementById('errorECourt').textContent = 'Error: ' + e.message;
+        document.getElementById('errorECourt').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Generate E-Court';
       });
     }
 

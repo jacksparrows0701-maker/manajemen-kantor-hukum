@@ -402,7 +402,7 @@ function generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan) {
   hakKuasa.setSpacingAfter(24);
 
   var ttdSection = body.appendParagraph('');
-  ttdSection.appendInlineContainer(DocumentApp.createParagraph('').getText() + '\n\n\n');
+  ttdSection.appendInlineContainer('\n\n\n');
   ttdSection.appendInlineContainer('MUHAMMAD IHSAN FAUZI, S.H., M.H');
   ttdSection.setSpacingAfter(6);
 
@@ -509,11 +509,9 @@ function generateDomisili(idKlien, pengadilan) {
 // ============================================================
 // 11. GENERATE SURAT E-COURT (Google Docs - bisa diedit)
 // ============================================================
-function generateSuratECourt(idKlien, idKasus) {
+function generateSuratECourt(idKlien, pengadilan) {
   var klien = getDataKlien(idKlien);
-  var kasus = getDataKasus(idKasus);
   if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
-  if (!kasus) return { success: false, message: 'Kasus tidak ditemukan' };
 
   var binBintiKlien = formatBinBinti(klien.jenisKelamin, klien.namaAyah);
   var tglLahirKlien = klien.tempatLahir + ', ' + Utilities.formatDate(new Date(klien.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
@@ -531,7 +529,7 @@ function generateSuratECourt(idKlien, idKasus) {
   title.setSpacingAfter(2);
 
   body.appendParagraph('BERACARA SECARA ELEKTRONIK (E-COURT)').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
-  body.appendParagraph('DI ' + (kasus.pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
+  body.appendParagraph('DI ' + (pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
 
   body.appendParagraph('Saya yang bertanda-tangan dibawah ini:').setSpacingAfter(6);
 
@@ -544,7 +542,7 @@ function generateSuratECourt(idKlien, idKasus) {
   ).setSpacingAfter(6);
 
   body.appendParagraph(
-    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (kasus.pengadilan || 'Pengadilan Agama') + '. ' +
+    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (pengadilan || 'Pengadilan Agama') + '. ' +
     'Berdasarkan Peraturan Mahkamah Agung Republik Indonesia Nomor 3 Tahun 2018, Tentang Administrasi Perkara di Pengadilan Secara Elektronik, para pihak tersebut diatas menyatakan:'
   ).setSpacingAfter(6);
 
@@ -553,7 +551,7 @@ function generateSuratECourt(idKlien, idKasus) {
   body.appendParagraph('Menerima panggilan sidang dan pemberitahuan putusan perkara perdata/permohonan secara elektronik;').setSpacingAfter(6);
 
   body.appendParagraph(
-    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (kasus.pengadilan || 'Pengadilan Agama') +
+    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (pengadilan || 'Pengadilan Agama') +
     ' yang harus dipenuhi oleh para pihak dihadapan Panitera Pengadilan tersebut.'
   ).setSpacingAfter(24);
 
@@ -1047,7 +1045,7 @@ function doPost(e) {
         break;
 
       case 'generateSuratECourt':
-        var r = generateSuratECourt(data.idKlien, data.idKasus);
+        var r = generateSuratECourt(data.idKlien, data.pengadilan);
         result = r;
         break;
 
