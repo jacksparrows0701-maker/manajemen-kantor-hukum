@@ -31,6 +31,13 @@
     .error-msg { display: none; background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; }
     .section-label { font-size: 11px; font-weight: 700; color: #1a5276; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 12px; padding-top: 16px; border-top: 1px solid #eee; }
     .info-box { background: #eaf2f8; padding: 12px; border-radius: 8px; font-size: 12px; color: #2980b9; margin-bottom: 16px; }
+    .ac-wrap { position: relative; }
+    .ac-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .ac-list.show { display: block; }
+    .ac-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+    .ac-item:hover { background: #eaf2f8; }
+    .ac-item .ac-id { font-weight: 700; color: #1a5276; }
+    .ac-item .ac-name { color: #666; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -51,16 +58,25 @@
       <div class="row">
         <div class="form-group">
           <label>ID Klien <span class="req">*</span></label>
-          <input type="text" id="idKlienSemua" placeholder="KL-001">
+          <div class="ac-wrap">
+            <input type="text" id="idKlienSemua" placeholder="Klik untuk pilih..." autocomplete="off">
+            <div class="ac-list" id="acIdKlienSemua"></div>
+          </div>
         </div>
         <div class="form-group">
           <label>ID Lawan <span class="req">*</span></label>
-          <input type="text" id="idLawanSemua" placeholder="LW-001">
+          <div class="ac-wrap">
+            <input type="text" id="idLawanSemua" placeholder="Klik untuk pilih..." autocomplete="off">
+            <div class="ac-list" id="acIdLawanSemua"></div>
+          </div>
         </div>
       </div>
       <div class="form-group">
         <label>ID Kasus <span class="req">*</span></label>
-        <input type="text" id="idKasusSemua" placeholder="KKS-001">
+        <div class="ac-wrap">
+          <input type="text" id="idKasusSemua" placeholder="Klik untuk pilih..." autocomplete="off">
+          <div class="ac-list" id="acIdKasusSemua"></div>
+        </div>
       </div>
       <button class="btn btn-green" onclick="generateSemua(event)">Generate 3 Dokumen Sekaligus</button>
       <div id="resultSemua" class="result">
@@ -81,16 +97,25 @@
       <div class="row">
         <div class="form-group">
           <label>ID Klien <span class="req">*</span></label>
-          <input type="text" id="idKlienKuasa" placeholder="KL-001">
+          <div class="ac-wrap">
+            <input type="text" id="idKlienKuasa" placeholder="Klik untuk pilih..." autocomplete="off">
+            <div class="ac-list" id="acIdKlienKuasa"></div>
+          </div>
         </div>
         <div class="form-group">
           <label>ID Lawan <span class="req">*</span></label>
-          <input type="text" id="idLawanKuasa" placeholder="LW-001">
+          <div class="ac-wrap">
+            <input type="text" id="idLawanKuasa" placeholder="Klik untuk pilih..." autocomplete="off">
+            <div class="ac-list" id="acIdLawanKuasa"></div>
+          </div>
         </div>
       </div>
       <div class="form-group">
         <label>ID Kasus <span class="req">*</span></label>
-        <input type="text" id="idKasusKuasa" placeholder="KKS-001">
+        <div class="ac-wrap">
+          <input type="text" id="idKasusKuasa" placeholder="Klik untuk pilih..." autocomplete="off">
+          <div class="ac-list" id="acIdKasusKuasa"></div>
+        </div>
       </div>
       <button class="btn btn-purple" onclick="generateKuasa(event)">Generate Surat Kuasa</button>
       <div id="resultKuasa" class="result">
@@ -104,7 +129,10 @@
       <h3>Generate Invoice PDF</h3>
       <div class="form-group">
         <label>ID Tagihan <span class="req">*</span></label>
-        <input type="text" id="idTagihan" placeholder="TG-001">
+        <div class="ac-wrap">
+          <input type="text" id="idTagihan" placeholder="Klik untuk pilih..." autocomplete="off">
+          <div class="ac-list" id="acIdTagihan"></div>
+        </div>
       </div>
       <button class="btn btn-orange" onclick="generateInvoice(event)">Generate Invoice</button>
       <div id="resultInvoice" class="result">
@@ -117,6 +145,46 @@
   <script>
     if (localStorage.getItem('adminLogin') !== 'true') { window.location.href = 'index.html'; }
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwvrlT6Fep-97KukDQvfW_bKGxZ5UL8_W9XMCgLJLI0yd1GDiQiVaeUugOLwXMCDF9VYg/exec';
+
+    function initAc(inputId, listId, sheetName, idKey, nameKey) {
+      var input = document.getElementById(inputId);
+      var list = document.getElementById(listId);
+      var data = [];
+      input.addEventListener('focus', function() {
+        if (data.length === 0) {
+          fetch(WEB_APP_URL + '?action=getData&sheet=' + encodeURIComponent(sheetName))
+            .then(function(r) { return r.json(); })
+            .then(function(res) { if (res.data) data = res.data; });
+        }
+      });
+      input.addEventListener('input', function() {
+        var val = input.value.toLowerCase();
+        list.innerHTML = '';
+        var filtered = data.filter(function(r) {
+          return String(r[idKey]).toLowerCase().indexOf(val) > -1 || String(r[nameKey]).toLowerCase().indexOf(val) > -1;
+        }).slice(0, 10);
+        filtered.forEach(function(r) {
+          var div = document.createElement('div');
+          div.className = 'ac-item';
+          div.innerHTML = '<span class="ac-id">' + r[idKey] + '</span><span class="ac-name">' + r[nameKey] + '</span>';
+          div.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            input.value = r[idKey];
+            list.classList.remove('show');
+          });
+          list.appendChild(div);
+        });
+        list.classList.toggle('show', filtered.length > 0 && val.length > 0);
+      });
+      input.addEventListener('blur', function() { setTimeout(function() { list.classList.remove('show'); }, 200); });
+    }
+    initAc('idKlienSemua', 'acIdKlienSemua', 'Data Klien', 'ID', 'Nama');
+    initAc('idLawanSemua', 'acIdLawanSemua', 'Data Lawan', 'ID', 'Nama');
+    initAc('idKasusSemua', 'acIdKasusSemua', 'Data Kasus', 'ID', 'No Perkara');
+    initAc('idKlienKuasa', 'acIdKlienKuasa', 'Data Klien', 'ID', 'Nama');
+    initAc('idLawanKuasa', 'acIdLawanKuasa', 'Data Lawan', 'ID', 'Nama');
+    initAc('idKasusKuasa', 'acIdKasusKuasa', 'Data Kasus', 'ID', 'No Perkara');
+    initAc('idTagihan', 'acIdTagihan', 'Data Tagihan', 'ID', 'No Invoice');
 
     function generateSemua(e) {
       var idKlien = document.getElementById('idKlienSemua').value;

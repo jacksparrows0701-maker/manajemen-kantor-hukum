@@ -28,6 +28,13 @@
     .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
     .success .btn { background: #27ae60; }
     .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .ac-wrap { position: relative; }
+    .ac-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .ac-list.show { display: block; }
+    .ac-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
+    .ac-item:hover { background: #eaf2f8; }
+    .ac-item .ac-id { font-weight: 700; color: #1a5276; }
+    .ac-item .ac-name { color: #666; margin-left: 6px; }
   </style>
 </head>
 <body>
@@ -42,7 +49,10 @@
       <form id="formJadwal">
         <div class="form-group">
           <label>ID Kasus <span class="req">*</span></label>
-          <input type="text" name="idKasus" placeholder="KKS-001" required>
+          <div class="ac-wrap">
+            <input type="text" name="idKasus" id="idKasus" placeholder="Klik untuk pilih..." required autocomplete="off">
+            <div class="ac-list" id="acIdKasus"></div>
+          </div>
         </div>
         <div class="row">
           <div class="form-group">
@@ -131,6 +141,40 @@
       document.getElementById('successMsg').style.display = 'none';
       document.getElementById('errorMsg').style.display = 'none';
     }
+
+    function initAc(inputId, listId, sheetName, idKey, nameKey) {
+      var input = document.getElementById(inputId);
+      var list = document.getElementById(listId);
+      var data = [];
+      input.addEventListener('focus', function() {
+        if (data.length === 0) {
+          fetch(WEB_APP_URL + '?action=getData&sheet=' + encodeURIComponent(sheetName))
+            .then(function(r) { return r.json(); })
+            .then(function(res) { if (res.data) data = res.data; });
+        }
+      });
+      input.addEventListener('input', function() {
+        var val = input.value.toLowerCase();
+        list.innerHTML = '';
+        var filtered = data.filter(function(r) {
+          return String(r[idKey]).toLowerCase().indexOf(val) > -1 || String(r[nameKey]).toLowerCase().indexOf(val) > -1;
+        }).slice(0, 10);
+        filtered.forEach(function(r) {
+          var div = document.createElement('div');
+          div.className = 'ac-item';
+          div.innerHTML = '<span class="ac-id">' + r[idKey] + '</span><span class="ac-name">' + r[nameKey] + '</span>';
+          div.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            input.value = r[idKey];
+            list.classList.remove('show');
+          });
+          list.appendChild(div);
+        });
+        list.classList.toggle('show', filtered.length > 0 && val.length > 0);
+      });
+      input.addEventListener('blur', function() { setTimeout(function() { list.classList.remove('show'); }, 200); });
+    }
+    initAc('idKasus', 'acIdKasus', 'Data Kasus', 'ID', 'No Perkara');
   </script>
 </body>
 </html>

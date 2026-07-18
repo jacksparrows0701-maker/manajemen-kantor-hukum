@@ -994,6 +994,19 @@ function doGet(e) {
         ss.getSheetByName(CONFIG.SHEETS.CATATAN).appendRow([id, d.idKasus, d.tanggal, d.judul, d.isi, d.tipe, d.oleh]);
         result.id = id; result.message = 'Catatan tersimpan';
         break;
+      case 'getData':
+        var sheet = ss.getSheetByName(e.parameter.sheet);
+        if (!sheet || sheet.getLastRow() <= 1) { result.data = []; break; }
+        var allData = sheet.getDataRange().getValues();
+        var headers = allData[0];
+        var rows = [];
+        for (var i = 1; i < allData.length; i++) {
+          var row = {};
+          for (var h = 0; h < headers.length; h++) { row[headers[h]] = allData[i][h]; }
+          rows.push(row);
+        }
+        result.data = rows;
+        break;
       default:
         result.success = false;
         result.message = 'Action tidak dikenali: ' + action;
