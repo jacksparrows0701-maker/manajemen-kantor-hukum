@@ -15,7 +15,8 @@ var CONFIG = {
     TAGIHAN: 'Tagihan',
     CATATAN: 'Catatan Kasus',
     NOMOR_SURAT: 'Nomor Surat',
-    DASHBOARD: 'Dashboard'
+    DASHBOARD: 'Dashboard',
+    ADMIN: 'Admin'
   },
   PREFIX: {
     KLIEN: 'KL-',
@@ -145,6 +146,7 @@ function setupSemuaSheet() {
   }
 
   setupDashboard();
+  setupAdminSheet();
 }
 
 // ============================================================
@@ -868,7 +870,53 @@ function buatLaporanBulanan() {
 }
 
 // ============================================================
-// 18. WEB APP - doPost
+// 18. SETUP ADMIN SHEET
+// ============================================================
+function setupAdminSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.SHEETS.ADMIN);
+  if (!sheet) {
+    sheet = ss.insertSheet(CONFIG.SHEETS.ADMIN);
+  }
+  var headers = ['Username', 'Password', 'Nama Lengkap', 'Role', 'Terakhir Login'];
+  var existingHeaders = sheet.getRange(1, 1, 1, headers.length).getValues()[0];
+  if (existingHeaders[0] !== 'Username') {
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+    sheet.getRange(1, 1, 1, headers.length).setFontWeight('bold').setBackground('#1a5276').setFontColor('white');
+    sheet.setFrozenRows(1);
+    // Default admin account
+    sheet.appendRow(['admin', 'admin123', 'Administrator', 'admin', '']);
+  }
+}
+
+// ============================================================
+// 19. VERIFY LOGIN
+// ============================================================
+function verifyLogin(username, password) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.SHEETS.ADMIN);
+  if (!sheet) {
+    setupAdminSheet();
+    sheet = ss.getSheetByName(CONFIG.SHEETS.ADMIN);
+  }
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && data[i][1] === password) {
+      // Update last login
+      sheet.getRange(i + 1, 5).setValue(new Date());
+      return {
+        success: true,
+        message: 'Login berhasil',
+        nama: data[i][2],
+        role: data[i][3]
+      };
+    }
+  }
+  return { success: false, message: 'Username atau password salah' };
+}
+
+// ============================================================
+// 20. WEB APP - doPost
 // ============================================================
 function doPost(e) {
   try {
@@ -878,6 +926,10 @@ function doPost(e) {
     var result = { success: true, message: '' };
 
     switch (action) {
+      case 'login':
+        result = verifyLogin(data.username, data.password);
+        break;
+
       case 'generateSuratKuasa':
         var r = generateSuratKuasa(data.idKlien, data.idLawan, data.idKasus);
         result = r;
@@ -1028,6 +1080,7 @@ function onOpen() {
   var ui = SpreadsheetApp.getUi();
   ui.createMenu('Manajemen Hukum')
     .addItem('Setup Semua Sheet', 'setupSemuaSheet')
+    .addItem('Setup Admin Sheet', 'setupAdminSheet')
     .addItem('MIGRATE Headers (Jalankan 1x)', 'migrateHeaders')
     .addItem('Refresh Dashboard', 'setupDashboard')
     .addItem('Update Sisa Tagihan', 'updateSisaTagihan')

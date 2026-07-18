@@ -7,9 +7,14 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
-    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 40px 20px; text-align: center; }
+    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 40px 20px; text-align: center; position: relative; }
     .header h1 { font-size: 28px; margin-bottom: 8px; }
     .header p { opacity: 0.85; font-size: 14px; }
+    .login-btn { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+    .login-btn:hover { background: rgba(255,255,255,0.3); }
+    .user-info { position: absolute; top: 16px; right: 16px; display: none; align-items: center; gap: 12px; }
+    .user-info .name { font-size: 13px; font-weight: 600; }
+    .user-info .logout-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
     .container { max-width: 900px; margin: -30px auto 40px; padding: 0 16px; }
     .section-title { font-size: 16px; font-weight: 700; color: #1a5276; margin: 24px 0 12px; padding-left: 4px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
@@ -28,12 +33,32 @@
     .card.brown { border-left: 4px solid #795548; }
     .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
     @media (max-width: 500px) { .grid { grid-template-columns: 1fr 1fr; } .card { padding: 18px 12px; } }
+
+    /* Modal Login */
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 12px; padding: 32px; width: 90%; max-width: 380px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    .modal h2 { text-align: center; color: #1a5276; margin-bottom: 24px; font-size: 20px; }
+    .modal .form-group { margin-bottom: 16px; }
+    .modal .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .modal .form-group input { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .modal .form-group input:focus { border-color: #2980b9; outline: none; }
+    .modal .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a5276, #2980b9); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .modal .btn:hover { opacity: 0.9; }
+    .modal .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .modal .error-msg { background: #fdecea; color: #e74c3c; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; text-align: center; }
+    .modal .close-btn { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="header">
     <h1>Manajemen Kantor Hukum</h1>
     <p>Sistem Input & Kelola Data Kasus</p>
+    <button class="login-btn" id="loginBtn" onclick="showLogin()">Login Admin</button>
+    <div class="user-info" id="userInfo">
+      <span class="name" id="userName"></span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
   </div>
 
   <div class="container">
@@ -88,5 +113,91 @@
   </div>
 
   <div class="footer">Manajemen Kantor Hukum &copy; 2026</div>
+
+  <!-- Modal Login -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal" style="position:relative;">
+      <button class="close-btn" onclick="hideLogin()">&times;</button>
+      <h2>Login Admin</h2>
+      <div class="error-msg" id="loginError"></div>
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Masukkan username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Masukkan password" required>
+        </div>
+        <button type="submit" class="btn" id="loginSubmit">Login</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    function showLogin() {
+      document.getElementById('loginModal').classList.add('active');
+    }
+    function hideLogin() {
+      document.getElementById('loginModal').classList.remove('active');
+      document.getElementById('loginError').style.display = 'none';
+    }
+
+    function doLogin(e) {
+      e.preventDefault();
+      var btn = document.getElementById('loginSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Memproses...';
+      document.getElementById('loginError').style.display = 'none';
+
+      var username = document.getElementById('loginUsername').value;
+      var password = document.getElementById('loginPassword').value;
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', username: username, password: password })
+      }).then(function(r) { return r.json(); }).then(function(res) {
+        if (res.success) {
+          localStorage.setItem('adminLogin', 'true');
+          localStorage.setItem('adminName', res.nama);
+          localStorage.setItem('adminRole', res.role);
+          showUserInfo();
+          hideLogin();
+        } else {
+          document.getElementById('loginError').textContent = res.message;
+          document.getElementById('loginError').style.display = 'block';
+        }
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      }).catch(function() {
+        document.getElementById('loginError').textContent = 'Gagal menghubungi server';
+        document.getElementById('loginError').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Login';
+      });
+    }
+
+    function showUserInfo() {
+      if (localStorage.getItem('adminLogin') === 'true') {
+        document.getElementById('loginBtn').style.display = 'none';
+        document.getElementById('userInfo').style.display = 'flex';
+        document.getElementById('userName').textContent = localStorage.getItem('adminName') || 'Admin';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('adminLogin');
+      localStorage.removeItem('adminName');
+      localStorage.removeItem('adminRole');
+      document.getElementById('loginBtn').style.display = 'block';
+      document.getElementById('userInfo').style.display = 'none';
+    }
+
+    // Check login on load
+    showUserInfo();
+  </script>
 </body>
 </html>
