@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Kasus - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #4a235a, #8e44ad); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #8e44ad; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #4a235a, #8e44ad); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .section-label { font-size: 12px; font-weight: 700; color: #8e44ad; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 12px; padding-top: 16px; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Data Kasus</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formKasus">
+        <div class="section-label">Data Terkait</div>
+        <div class="row">
+          <div class="form-group">
+            <label>ID Klien <span class="req">*</span></label>
+            <input type="text" name="idKlien" placeholder="KL-001" required>
+          </div>
+          <div class="form-group">
+            <label>ID Lawan <span class="req">*</span></label>
+            <input type="text" name="idLawan" placeholder="LW-001" required>
+          </div>
+        </div>
+
+        <div class="section-label">Data Kasus</div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tipe Kasus <span class="req">*</span></label>
+            <select name="tipeKasus" required>
+              <option value="">-- Pilih --</option>
+              <option>Cerai Gugat</option>
+              <option>Cerai Talak</option>
+              <option>Waris</option>
+              <option>Isbat Nikah</option>
+              <option>Hak Asuh Anak</option>
+              <option>Harta Gono-Gini</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status Kasus <span class="req">*</span></label>
+            <select name="statusKasus" required>
+              <option value="">-- Pilih --</option>
+              <option>Baru</option>
+              <option>Dalam Proses</option>
+              <option>Sidang</option>
+              <option>Putusan</option>
+              <option>Selesai</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tanggal Daftar <span class="req">*</span></label>
+          <input type="date" name="tglDaftar" required>
+        </div>
+
+        <div class="section-label">Data Perkara</div>
+        <div class="row">
+          <div class="form-group">
+            <label>No. Perkara <span class="req">*</span></label>
+            <input type="text" name="noPerkara" placeholder="1234/Pdt.G/2026/PA.Bdg" required>
+          </div>
+          <div class="form-group">
+            <label>Tahun Perkara <span class="req">*</span></label>
+            <input type="text" name="tahunPerkara" placeholder="2026" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status Perkara <span class="req">*</span></label>
+          <select name="statusPerkara" required>
+            <option value="">-- Pilih --</option>
+            <option>Diajukan</option>
+            <option>Pemeriksaan</option>
+            <option>Sidang Pertama</option>
+            <option>Sidang Kedua</option>
+            <option>Sidang Ketiga</option>
+            <option>Putusan</option>
+            <option>Banding</option>
+            <option>Kasasi</option>
+            <option>Berkekuatan Hukum Tetap</option>
+          </select>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Pengadilan <span class="req">*</span></label>
+            <input type="text" name="pengadilan" placeholder="PA Bandung" required>
+          </div>
+          <div class="form-group">
+            <label>No. Register</label>
+            <input type="text" name="noRegister">
+          </div>
+        </div>
+
+        <div class="section-label">Data Majelis Hakim</div>
+        <div class="form-group">
+          <label>Hakim Ketua</label>
+          <input type="text" name="hakimKetua">
+        </div>
+        <div class="form-group">
+          <label>Hakim Anggota</label>
+          <input type="text" name="hakimAnggota">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Mediator</label>
+            <input type="text" name="mediator">
+          </div>
+          <div class="form-group">
+            <label>Panitera</label>
+            <input type="text" name="panitera">
+          </div>
+        </div>
+
+        <div class="section-label">Biaya & Estimasi</div>
+        <div class="row">
+          <div class="form-group">
+            <label>Biaya Total</label>
+            <input type="number" name="biayaTotal" placeholder="Rp">
+          </div>
+          <div class="form-group">
+            <label>Biaya Terbayar</label>
+            <input type="number" name="biayaBayar" placeholder="Rp">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Estimasi Selesai</label>
+          <input type="date" name="estimasiSelesai">
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea name="keterangan"></textarea>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Data Kasus</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p id="successId">Data kasus berhasil dikirim</p>
+        <button class="btn" onclick="resetForm()">Tambah Kasus Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formKasus').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addKasus',
+        idKlien: form.idKlien.value,
+        idLawan: form.idLawan.value,
+        tipeKasus: form.tipeKasus.value,
+        statusKasus: form.statusKasus.value,
+        tglDaftar: form.tglDaftar.value,
+        noPerkara: form.noPerkara.value,
+        tahunPerkara: form.tahunPerkara.value,
+        statusPerkara: form.statusPerkara.value,
+        pengadilan: form.pengadilan.value,
+        noRegister: form.noRegister.value,
+        hakimKetua: form.hakimKetua.value,
+        hakimAnggota: form.hakimAnggota.value,
+        mediator: form.mediator.value,
+        panitera: form.panitera.value,
+        biayaTotal: form.biayaTotal.value || 0,
+        biayaBayar: form.biayaBayar.value || 0,
+        estimasiSelesai: form.estimasiSelesai.value,
+        keterangan: form.keterangan.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formKasus').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Data Kasus';
+      }).catch(function() {
+        document.getElementById('formKasus').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Data Kasus';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formKasus').reset();
+      document.getElementById('formKasus').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

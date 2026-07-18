@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tagihan - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #5d4037, #795548); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #795548; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #5d4037, #795548); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Buat Tagihan / Invoice</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formTagihan">
+        <div class="form-group">
+          <label>ID Kasus <span class="req">*</span></label>
+          <input type="text" name="idKasus" placeholder="KKS-001" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>No. Invoice <span class="req">*</span></label>
+            <input type="text" name="noInvoice" placeholder="INV-001" required>
+          </div>
+          <div class="form-group">
+            <label>Jumlah <span class="req">*</span></label>
+            <input type="number" name="jumlah" placeholder="Rp" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Item Tagihan <span class="req">*</span></label>
+          <input type="text" name="item" placeholder="Contoh: Biaya konsultasi tahap 1" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Status Bayar <span class="req">*</span></label>
+            <select name="statusBayar" required>
+              <option value="">-- Pilih --</option>
+              <option>Belum Bayar</option>
+              <option>DP Terbayar</option>
+              <option>Lunas</option>
+              <option>Terlambat</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Jatuh Tempo <span class="req">*</span></label>
+            <input type="date" name="jatuhTempo" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Tanggal Bayar</label>
+          <input type="date" name="tglBayar">
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea name="keterangan"></textarea>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Tagihan</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p>Tagihan berhasil dicatat</p>
+        <button class="btn" onclick="resetForm()">Buat Tagihan Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formTagihan').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addTagihan',
+        idKasus: form.idKasus.value,
+        noInvoice: form.noInvoice.value,
+        item: form.item.value,
+        jumlah: form.jumlah.value,
+        statusBayar: form.statusBayar.value,
+        jatuhTempo: form.jatuhTempo.value,
+        tglBayar: form.tglBayar.value,
+        keterangan: form.keterangan.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formTagihan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Tagihan';
+      }).catch(function() {
+        document.getElementById('formTagihan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Tagihan';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formTagihan').reset();
+      document.getElementById('formTagihan').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

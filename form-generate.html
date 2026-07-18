@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate Dokumen - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; display: block; margin-bottom: 4px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 16px; }
+    .form-card h3 { color: #1a5276; margin-bottom: 16px; font-size: 16px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .form-group input:focus { border-color: #2980b9; outline: none; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a5276, #2980b9); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .btn-green { background: linear-gradient(135deg, #1e8449, #27ae60); }
+    .btn-purple { background: linear-gradient(135deg, #4a235a, #8e44ad); }
+    .btn-orange { background: linear-gradient(135deg, #d35400, #e67e22); }
+    .result { display: none; background: #d4edda; padding: 16px; border-radius: 8px; margin-top: 16px; }
+    .result a { color: #155724; font-weight: bold; word-break: break-all; display: block; margin: 4px 0; }
+    .result .label { font-size: 12px; color: #666; }
+    .error-msg { display: none; background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; margin-top: 16px; font-size: 13px; }
+    .section-label { font-size: 11px; font-weight: 700; color: #1a5276; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0 12px; padding-top: 16px; border-top: 1px solid #eee; }
+    .info-box { background: #eaf2f8; padding: 12px; border-radius: 8px; font-size: 12px; color: #2980b9; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali ke Menu</a>
+    <h1>Generate Dokumen Otomatis</h1>
+  </div>
+
+  <div class="form-container">
+    <!-- Generate Semua Surat -->
+    <div class="form-card">
+      <h3>Generate Semua Surat (3 Dokumen)</h3>
+      <div class="info-box">
+        Akan generate: <strong>Surat Kuasa</strong> + <strong>Surat Domisili</strong> + <strong>Surat E-Court</strong><br>
+        Semua dokumen akan dibuat di Google Docs (bisa diedit sebelum download .docx)
+      </div>
+      <div class="section-label">Data Klien & Kasus</div>
+      <div class="row">
+        <div class="form-group">
+          <label>ID Klien <span class="req">*</span></label>
+          <input type="text" id="idKlienSemua" placeholder="KL-001">
+        </div>
+        <div class="form-group">
+          <label>ID Lawan <span class="req">*</span></label>
+          <input type="text" id="idLawanSemua" placeholder="LW-001">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>ID Kasus <span class="req">*</span></label>
+        <input type="text" id="idKasusSemua" placeholder="KKS-001">
+      </div>
+      <button class="btn btn-green" onclick="generateSemua()">Generate 3 Dokumen Sekaligus</button>
+      <div id="resultSemua" class="result">
+        <strong>Semua surat berhasil!</strong>
+        <div class="label">Surat Kuasa:</div>
+        <a id="linkKuasaSemua" href="#" target="_blank">Buka Surat Kuasa</a>
+        <div class="label">Surat Domisili:</div>
+        <a id="linkDomisiliSemua" href="#" target="_blank">Buka Surat Domisili</a>
+        <div class="label">Surat E-Court:</div>
+        <a id="linkECourtSemua" href="#" target="_blank">Buka Surat E-Court</a>
+      </div>
+      <div id="errorSemua" class="error-msg"></div>
+    </div>
+
+    <!-- Generate Surat Kuasa Saja -->
+    <div class="form-card">
+      <h3>Generate Surat Kuasa Saja</h3>
+      <div class="row">
+        <div class="form-group">
+          <label>ID Klien <span class="req">*</span></label>
+          <input type="text" id="idKlienKuasa" placeholder="KL-001">
+        </div>
+        <div class="form-group">
+          <label>ID Lawan <span class="req">*</span></label>
+          <input type="text" id="idLawanKuasa" placeholder="LW-001">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>ID Kasus <span class="req">*</span></label>
+        <input type="text" id="idKasusKuasa" placeholder="KKS-001">
+      </div>
+      <button class="btn btn-purple" onclick="generateKuasa()">Generate Surat Kuasa</button>
+      <div id="resultKuasa" class="result">
+        Surat Kuasa berhasil! <a id="linkKuasa" href="#" target="_blank">Buka Surat Kuasa</a>
+      </div>
+      <div id="errorKuasa" class="error-msg"></div>
+    </div>
+
+    <!-- Generate Invoice -->
+    <div class="form-card">
+      <h3>Generate Invoice PDF</h3>
+      <div class="form-group">
+        <label>ID Tagihan <span class="req">*</span></label>
+        <input type="text" id="idTagihan" placeholder="TG-001">
+      </div>
+      <button class="btn btn-orange" onclick="generateInvoice()">Generate Invoice</button>
+      <div id="resultInvoice" class="result">
+        Invoice berhasil! <a id="linkInvoice" href="#" target="_blank">Buka Invoice</a>
+      </div>
+      <div id="errorInvoice" class="error-msg"></div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    function showResult(prefix, data) {
+      if (data.success) {
+        document.getElementById('result' + prefix).style.display = 'block';
+        document.getElementById('error' + prefix).style.display = 'none';
+      } else {
+        document.getElementById('error' + prefix).textContent = data.message || 'Gagal generate';
+        document.getElementById('error' + prefix).style.display = 'block';
+        document.getElementById('result' + prefix).style.display = 'none';
+      }
+    }
+
+    function generateSemua() {
+      var idKlien = document.getElementById('idKlienSemua').value;
+      var idLawan = document.getElementById('idLawanSemua').value;
+      var idKasus = document.getElementById('idKasusSemua').value;
+      if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
+      var btn = event.target;
+      btn.disabled = true; btn.textContent = 'Generating 3 dokumen...';
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generateSemuaSurat', idKlien: idKlien, idLawan: idLawan, idKasus: idKasus })
+      }).then(function(r) { return r.text(); }).then(function(t) {
+        try {
+          var res = JSON.parse(t);
+          if (res.results) {
+            if (res.results.suratKuasa.success) document.getElementById('linkKuasaSemua').href = res.results.suratKuasa.link;
+            if (res.results.domisili.success) document.getElementById('linkDomisiliSemua').href = res.results.domisili.link;
+            if (res.results.eCourt.success) document.getElementById('linkECourtSemua').href = res.results.eCourt.link;
+            document.getElementById('resultSemua').style.display = 'block';
+            document.getElementById('errorSemua').style.display = 'none';
+          } else {
+            document.getElementById('errorSemua').textContent = res.message || 'Gagal generate';
+            document.getElementById('errorSemua').style.display = 'block';
+          }
+        } catch(e) {
+          document.getElementById('errorSemua').textContent = 'Response tidak valid';
+          document.getElementById('errorSemua').style.display = 'block';
+        }
+        btn.disabled = false; btn.textContent = 'Generate 3 Dokumen Sekaligus';
+      }).catch(function(e) {
+        document.getElementById('errorSemua').textContent = 'Error: ' + e.message;
+        document.getElementById('errorSemua').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Generate 3 Dokumen Sekaligus';
+      });
+    }
+
+    function generateKuasa() {
+      var idKlien = document.getElementById('idKlienKuasa').value;
+      var idLawan = document.getElementById('idLawanKuasa').value;
+      var idKasus = document.getElementById('idKasusKuasa').value;
+      if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
+      var btn = event.target;
+      btn.disabled = true; btn.textContent = 'Generating...';
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generateSuratKuasa', idKlien: idKlien, idLawan: idLawan, idKasus: idKasus })
+      }).then(function(r) { return r.text(); }).then(function(t) {
+        try {
+          var res = JSON.parse(t);
+          if (res.success) {
+            document.getElementById('linkKuasa').href = res.link;
+            document.getElementById('resultKuasa').style.display = 'block';
+            document.getElementById('errorKuasa').style.display = 'none';
+          } else {
+            document.getElementById('errorKuasa').textContent = res.message || 'Gagal generate';
+            document.getElementById('errorKuasa').style.display = 'block';
+          }
+        } catch(e) {
+          document.getElementById('errorKuasa').textContent = 'Response tidak valid';
+          document.getElementById('errorKuasa').style.display = 'block';
+        }
+        btn.disabled = false; btn.textContent = 'Generate Surat Kuasa';
+      }).catch(function(e) {
+        document.getElementById('errorKuasa').textContent = 'Error: ' + e.message;
+        document.getElementById('errorKuasa').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Generate Surat Kuasa';
+      });
+    }
+
+    function generateInvoice() {
+      var id = document.getElementById('idTagihan').value;
+      if (!id) return alert('Masukkan ID Tagihan');
+      var btn = event.target;
+      btn.disabled = true; btn.textContent = 'Generating...';
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generateInvoice', idTagihan: id })
+      }).then(function(r) { return r.text(); }).then(function(t) {
+        try {
+          var res = JSON.parse(t);
+          if (res.link) {
+            document.getElementById('linkInvoice').href = res.link;
+            document.getElementById('resultInvoice').style.display = 'block';
+            document.getElementById('errorInvoice').style.display = 'none';
+          } else {
+            document.getElementById('errorInvoice').textContent = res.message || 'Gagal generate';
+            document.getElementById('errorInvoice').style.display = 'block';
+          }
+        } catch(e) {
+          document.getElementById('errorInvoice').textContent = 'Response tidak valid';
+          document.getElementById('errorInvoice').style.display = 'block';
+        }
+        btn.disabled = false; btn.textContent = 'Generate Invoice';
+      }).catch(function(e) {
+        document.getElementById('errorInvoice').textContent = 'Error: ' + e.message;
+        document.getElementById('errorInvoice').style.display = 'block';
+        btn.disabled = false; btn.textContent = 'Generate Invoice';
+      });
+    }
+  </script>
+</body>
+</html>

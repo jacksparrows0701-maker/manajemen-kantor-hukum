@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Lawan - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #922b21, #e74c3c); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #e74c3c; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #922b21, #e74c3c); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Data Lawan</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formLawan">
+        <div class="form-group">
+          <label>ID Klien Terkait <span class="req">*</span></label>
+          <input type="text" name="idKlien" placeholder="KL-001" required>
+        </div>
+        <div class="form-group">
+          <label>Nama Lengkap <span class="req">*</span></label>
+          <input type="text" name="nama" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>No. KTP</label>
+            <input type="text" name="ktp" maxlength="16">
+          </div>
+          <div class="form-group">
+            <label>No. HP</label>
+            <input type="text" name="hp">
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Nama Ayah <span class="req">*</span></label>
+            <input type="text" name="namaAyah" placeholder="Untuk bin/binti" required>
+          </div>
+          <div class="form-group">
+            <label>Jenis Kelamin <span class="req">*</span></label>
+            <select name="jenisKelamin" required>
+              <option value="">-- Pilih --</option>
+              <option>Laki-laki</option>
+              <option>Perempuan</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tempat Lahir</label>
+            <input type="text" name="tempatLahir" placeholder="Kota kelahiran">
+          </div>
+          <div class="form-group">
+            <label>Tanggal Lahir</label>
+            <input type="date" name="tglLahir">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Alamat <span class="req">*</span></label>
+          <textarea name="alamat" required></textarea>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Status Perkawinan <span class="req">*</span></label>
+            <select name="statusKawin" required>
+              <option value="">-- Pilih --</option>
+              <option>Menikah</option>
+              <option>Cerai</option>
+              <option>Duda/Janda</option>
+              <option>Belum Menikah</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Agama</label>
+            <select name="agama">
+              <option value="">-- Pilih --</option>
+              <option>Islam</option>
+              <option>Kristen</option>
+              <option>Katolik</option>
+              <option>Hindu</option>
+              <option>Buddha</option>
+              <option>Konghucu</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Penghasilan/Bulan</label>
+            <input type="number" name="penghasilan" placeholder="Rp">
+          </div>
+          <div class="form-group">
+            <label>Hubungan <span class="req">*</span></label>
+            <select name="hubungan" required>
+              <option value="">-- Pilih --</option>
+              <option>Suami</option>
+              <option>Istri</option>
+              <option>Anak</option>
+              <option>Orang Tua</option>
+              <option>Saudara</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea name="keterangan"></textarea>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Data Lawan</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p id="successId">Data lawan berhasil dikirim</p>
+        <button class="btn" onclick="resetForm()">Tambah Lawan Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formLawan').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addLawan',
+        idKlien: form.idKlien.value,
+        nama: form.nama.value,
+        namaAyah: form.namaAyah.value,
+        jenisKelamin: form.jenisKelamin.value,
+        ktp: form.ktp.value,
+        hp: form.hp.value,
+        tempatLahir: form.tempatLahir.value,
+        tglLahir: form.tglLahir.value,
+        pekerjaan: form.pekerjaan.value,
+        alamat: form.alamat.value,
+        statusKawin: form.statusKawin.value,
+        agama: form.agama.value,
+        penghasilan: form.penghasilan.value || 0,
+        hubungan: form.hubungan.value,
+        keterangan: form.keterangan.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formLawan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Data Lawan';
+      }).catch(function() {
+        document.getElementById('formLawan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Data Lawan';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formLawan').reset();
+      document.getElementById('formLawan').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

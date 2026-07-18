@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jadwal - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #d35400, #e67e22); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #e67e22; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #d35400, #e67e22); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Jadwal Sidang / Konsultasi</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formJadwal">
+        <div class="form-group">
+          <label>ID Kasus <span class="req">*</span></label>
+          <input type="text" name="idKasus" placeholder="KKS-001" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tipe Jadwal <span class="req">*</span></label>
+            <select name="tipeJadwal" required>
+              <option value="">-- Pilih --</option>
+              <option>Sidang</option>
+              <option>Konsultasi</option>
+              <option>Mediasi</option>
+              <option>Meeting</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status <span class="req">*</span></label>
+            <select name="status" required>
+              <option value="">-- Pilih --</option>
+              <option>Terjadwal</option>
+              <option>Selesai</option>
+              <option>Dibatalkan</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tanggal <span class="req">*</span></label>
+            <input type="date" name="tanggal" required>
+          </div>
+          <div class="form-group">
+            <label>Waktu <span class="req">*</span></label>
+            <input type="time" name="waktu" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Lokasi <span class="req">*</span></label>
+          <input type="text" name="lokasi" placeholder="PA Bandung, Ruang Sidang 3" required>
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea name="keterangan"></textarea>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Jadwal</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p>Jadwal berhasil dicatat</p>
+        <button class="btn" onclick="resetForm()">Tambah Jadwal Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formJadwal').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addJadwal',
+        idKasus: form.idKasus.value,
+        tipeJadwal: form.tipeJadwal.value,
+        tanggal: form.tanggal.value,
+        waktu: form.waktu.value,
+        lokasi: form.lokasi.value,
+        status: form.status.value,
+        keterangan: form.keterangan.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formJadwal').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Jadwal';
+      }).catch(function() {
+        document.getElementById('formJadwal').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Jadwal';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formJadwal').reset();
+      document.getElementById('formJadwal').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

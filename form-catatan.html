@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catatan Kasus - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #ad1457, #e91e63); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #e91e63; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #ad1457, #e91e63); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Catatan Perkembangan Kasus</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formCatatan">
+        <div class="form-group">
+          <label>ID Kasus <span class="req">*</span></label>
+          <input type="text" name="idKasus" placeholder="KKS-001" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tanggal <span class="req">*</span></label>
+            <input type="date" name="tanggal" required>
+          </div>
+          <div class="form-group">
+            <label>Tipe Catatan <span class="req">*</span></label>
+            <select name="tipe" required>
+              <option value="">-- Pilih --</option>
+              <option>Update</option>
+              <option>Penting</option>
+              <option>Telepon</option>
+              <option>Rapat</option>
+              <option>Sidang</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Judul <span class="req">*</span></label>
+          <input type="text" name="judul" placeholder="Contoh: Persiapan sidang ke-3" required>
+        </div>
+        <div class="form-group">
+          <label>Isi Catatan <span class="req">*</span></label>
+          <textarea name="isi" placeholder="Tulis perkembangan kasus di sini..." required></textarea>
+        </div>
+        <div class="form-group">
+          <label>Oleh</label>
+          <input type="text" name="oleh" placeholder="Nama staff/pengacara">
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Catatan</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p>Catatan berhasil dicatat</p>
+        <button class="btn" onclick="resetForm()">Tambah Catatan Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formCatatan').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addCatatan',
+        idKasus: form.idKasus.value,
+        tanggal: form.tanggal.value,
+        judul: form.judul.value,
+        isi: form.isi.value,
+        tipe: form.tipe.value,
+        oleh: form.oleh.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formCatatan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Catatan';
+      }).catch(function() {
+        document.getElementById('formCatatan').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Catatan';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formCatatan').reset();
+      document.getElementById('formCatatan').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>

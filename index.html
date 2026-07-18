@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 40px 20px; text-align: center; }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { opacity: 0.85; font-size: 14px; }
+    .container { max-width: 900px; margin: -30px auto 40px; padding: 0 16px; }
+    .section-title { font-size: 16px; font-weight: 700; color: #1a5276; margin: 24px 0 12px; padding-left: 4px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+    .card { background: white; border-radius: 12px; padding: 24px 16px; text-align: center; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s; border: 2px solid transparent; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: #2980b9; }
+    .card .icon { font-size: 36px; margin-bottom: 10px; }
+    .card .label { font-size: 14px; font-weight: 600; }
+    .card .desc { font-size: 11px; color: #888; margin-top: 4px; }
+    .card.blue { border-left: 4px solid #2980b9; }
+    .card.green { border-left: 4px solid #27ae60; }
+    .card.orange { border-left: 4px solid #e67e22; }
+    .card.purple { border-left: 4px solid #8e44ad; }
+    .card.red { border-left: 4px solid #e74c3c; }
+    .card.teal { border-left: 4px solid #16a085; }
+    .card.pink { border-left: 4px solid #e91e63; }
+    .card.brown { border-left: 4px solid #795548; }
+    .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
+    @media (max-width: 500px) { .grid { grid-template-columns: 1fr 1fr; } .card { padding: 18px 12px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Manajemen Kantor Hukum</h1>
+    <p>Sistem Input & Kelola Data Kasus</p>
+  </div>
+
+  <div class="container">
+    <div class="section-title">Input Data</div>
+    <div class="grid">
+      <a href="form-klien.html" class="card blue">
+        <div class="icon">&#128100;</div>
+        <div class="label">Data Klien</div>
+        <div class="desc">Tambah klien baru</div>
+      </a>
+      <a href="form-lawan.html" class="card red">
+        <div class="icon">&#9878;</div>
+        <div class="label">Data Lawan</div>
+        <div class="desc">Tambah data lawan</div>
+      </a>
+      <a href="form-kasus.html" class="card purple">
+        <div class="icon">&#128220;</div>
+        <div class="label">Data Kasus</div>
+        <div class="desc">Tambah kasus baru</div>
+      </a>
+      <a href="form-keuangan.html" class="card green">
+        <div class="icon">&#128176;</div>
+        <div class="label">Keuangan</div>
+        <div class="desc">Input transaksi</div>
+      </a>
+      <a href="form-jadwal.html" class="card orange">
+        <div class="icon">&#128197;</div>
+        <div class="label">Jadwal</div>
+        <div class="desc">Sidang / Konsultasi</div>
+      </a>
+      <a href="form-dokumen.html" class="card teal">
+        <div class="icon">&#128196;</div>
+        <div class="label">Dokumen</div>
+        <div class="desc">Upload file</div>
+      </a>
+      <a href="form-tagihan.html" class="card brown">
+        <div class="icon">&#128179;</div>
+        <div class="label">Tagihan</div>
+        <div class="desc">Buat invoice</div>
+      </a>
+      <a href="form-catatan.html" class="card pink">
+        <div class="icon">&#128221;</div>
+        <div class="label">Catatan</div>
+        <div class="desc">Perkembangan kasus</div>
+      </a>
+      <a href="form-generate.html" class="card brown">
+        <div class="icon">&#128196;</div>
+        <div class="label">Generate</div>
+        <div class="desc">Invoice & Surat PDF</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">Manajemen Kantor Hukum &copy; 2026</div>
+</body>
+</html>

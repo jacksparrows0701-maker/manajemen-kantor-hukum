@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dokumen - Manajemen Kantor Hukum</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #0e6655, #16a085); color: white; padding: 20px; }
+    .header h1 { font-size: 20px; }
+    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
+    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
+    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-group label .req { color: #e74c3c; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #16a085; outline: none; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #0e6655, #16a085); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    .success { display: none; text-align: center; padding: 40px 20px; }
+    .success .icon { font-size: 60px; margin-bottom: 16px; }
+    .success h2 { color: #27ae60; margin-bottom: 8px; }
+    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
+    .success .btn { background: #27ae60; }
+    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
+    .info { background: #eaf2f8; padding: 12px; border-radius: 8px; font-size: 12px; color: #2980b9; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a href="index.html">&larr; Kembali</a>
+    <h1>Upload Dokumen</h1>
+  </div>
+
+  <div class="form-container">
+    <div class="form-card">
+      <div class="info">
+        Upload file ke Google Drive, lalu paste link-nya di bawah.
+        <br>Cara: Buka <b>drive.google.com</b> &rarr; drag & drop file &rarr; klik kanan &rarr; <b>Copy link</b>
+      </div>
+      <div id="errorMsg" class="error-msg"></div>
+      <form id="formDokumen">
+        <div class="form-group">
+          <label>ID Kasus <span class="req">*</span></label>
+          <input type="text" name="idKasus" placeholder="KKS-001" required>
+        </div>
+        <div class="form-group">
+          <label>Nama Dokumen <span class="req">*</span></label>
+          <input type="text" name="namaDokumen" placeholder="Contoh: KTP Klien" required>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Tipe Dokumen <span class="req">*</span></label>
+            <select name="tipeDokumen" required>
+              <option value="">-- Pilih --</option>
+              <option>KTP</option>
+              <option>Kartu Keluarga</option>
+              <option>Surat Nikah</option>
+              <option>Akta Kelahiran</option>
+              <option>Surat Gugatan</option>
+              <option>Surat Jawaban</option>
+              <option>Putusan</option>
+              <option>Surat Kuasa</option>
+              <option>Bukti Bayar</option>
+              <option>Foto</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tanggal Upload</label>
+            <input type="date" name="tglUpload">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Link Google Drive <span class="req">*</span></label>
+          <input type="url" name="linkDrive" placeholder="https://drive.google.com/file/d/..." required>
+        </div>
+        <div class="form-group">
+          <label>Keterangan</label>
+          <textarea name="keterangan"></textarea>
+        </div>
+        <button type="submit" class="btn" id="btnSubmit">Simpan Dokumen</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        <div class="icon">&#9989;</div>
+        <h2>Berhasil Disimpan!</h2>
+        <p>Dokumen berhasil dicatat</p>
+        <button class="btn" onclick="resetForm()">Tambah Dokumen Baru</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyZKjDVJvaF8BUaoLNciAhgAKNbbR51oRsUWlGN98ncPAbLArKPROgViKOKxjxwh4fzTA/exec';
+
+    document.getElementById('formDokumen').addEventListener('submit', function(e) {
+      e.preventDefault();
+      var btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      var form = e.target;
+      var data = {
+        action: 'addDokumen',
+        idKasus: form.idKasus.value,
+        namaDokumen: form.namaDokumen.value,
+        tipeDokumen: form.tipeDokumen.value,
+        tglUpload: form.tglUpload.value || new Date().toISOString().split('T')[0],
+        linkDrive: form.linkDrive.value,
+        keterangan: form.keterangan.value
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function() {
+        document.getElementById('formDokumen').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Dokumen';
+      }).catch(function() {
+        document.getElementById('formDokumen').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Simpan Dokumen';
+      });
+    });
+
+    function resetForm() {
+      document.getElementById('formDokumen').reset();
+      document.getElementById('formDokumen').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
