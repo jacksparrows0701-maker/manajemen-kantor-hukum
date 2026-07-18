@@ -196,11 +196,10 @@
 
       document.getElementById('formKlien').style.display = 'none';
       document.getElementById('successMsg').style.display = 'block';
-      document.getElementById('successId').textContent = 'Data berhasil dikirim ke spreadsheet!';
+      document.getElementById('successId').textContent = 'Data berhasil dikirim!';
       btn.disabled = false;
       btn.textContent = 'Simpan Data Klien';
-      try { new Image().src = WEB_APP_URL + '?action=addKlien&data=' + encodeURIComponent(JSON.stringify(data)); } catch(e) {}
-      try { fetch(WEB_APP_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(data) }); } catch(e) {}
+      new Image().src = WEB_APP_URL + '?action=addKlien&data=' + encodeURIComponent(JSON.stringify(data));
     });
 
     function resetForm() {

@@ -92,15 +92,8 @@
       btn.textContent = 'Memproses...';
       document.getElementById('loginError').style.display = 'none';
 
-      fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'login',
-          username: document.getElementById('username').value,
-          password: document.getElementById('password').value
-        })
-      }).then(function(r) { return r.json(); }).then(function(res) {
+      fetch(WEB_APP_URL + '?action=login&username=' + encodeURIComponent(document.getElementById('username').value) + '&password=' + encodeURIComponent(document.getElementById('password').value))
+      .then(function(r) { return r.json(); }).then(function(res) {
         if (res.success) {
           localStorage.setItem('adminLogin', 'true');
           localStorage.setItem('adminName', res.nama);
@@ -137,16 +130,8 @@
       document.getElementById('cpError').style.display = 'none';
       document.getElementById('cpSuccess').style.display = 'none';
 
-      fetch(WEB_APP_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({
-          action: 'changePassword',
-          username: document.getElementById('cpUsername').value,
-          oldPassword: document.getElementById('cpOldPassword').value,
-          newPassword: document.getElementById('cpNewPassword').value
-        })
-      }).then(function(r) { return r.json(); }).then(function(res) {
+      fetch(WEB_APP_URL + '?action=changePassword&username=' + encodeURIComponent(document.getElementById('cpUsername').value) + '&oldPassword=' + encodeURIComponent(document.getElementById('cpOldPassword').value) + '&newPassword=' + encodeURIComponent(document.getElementById('cpNewPassword').value))
+      .then(function(r) { return r.json(); }).then(function(res) {
         if (res.success) {
           document.getElementById('cpSuccess').textContent = 'Password berhasil diganti!';
           document.getElementById('cpSuccess').style.display = 'block';

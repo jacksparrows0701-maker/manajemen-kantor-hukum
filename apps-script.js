@@ -933,7 +933,80 @@ function changePassword(username, oldPassword, newPassword) {
 }
 
 // ============================================================
-// 20. WEB APP - doPost
+// 20. WEB APP - doGet (via URL params - no CORS)
+// ============================================================
+function doGet(e) {
+  var action = e.parameter.action;
+  if (!action) return ContentService.createTextOutput('OK');
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var result = { success: true, message: '' };
+  try {
+    switch (action) {
+      case 'login':
+        result = verifyLogin(e.parameter.username, e.parameter.password);
+        break;
+      case 'addKlien':
+        var id = getLatestId(CONFIG.SHEETS.KLIEN, CONFIG.PREFIX.KLIEN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.KLIEN).appendRow([id, d.nama, d.namaAyah, d.jenisKelamin, d.ktp, d.hp, d.email, d.tempatLahir, d.tglLahir, hitungUsia(d.tglLahir), d.pekerjaan, d.alamat, d.statusKawin, d.agama, d.pendidikan, d.penghasilan || 0, d.sumber, d.tglDaftar || new Date().toISOString().split('T')[0], d.keterangan]);
+        result.id = id; result.message = 'Klien tersimpan';
+        break;
+      case 'addLawan':
+        var id = getLatestId(CONFIG.SHEETS.LAWAN, CONFIG.PREFIX.LAWAN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.LAWAN).appendRow([id, d.idKlien, d.nama, d.namaAyah, d.jenisKelamin, d.ktp, d.hp, d.tempatLahir, d.tglLahir, hitungUsia(d.tglLahir), d.pekerjaan, d.alamat, d.statusKawin, d.agama, d.penghasilan || 0, d.hubungan, d.keterangan]);
+        result.id = id; result.message = 'Lawan tersimpan';
+        break;
+      case 'addKasus':
+        var id = getLatestId(CONFIG.SHEETS.KASUS, CONFIG.PREFIX.KASUS);
+        var d = JSON.parse(e.parameter.data);
+        var bt = parseFloat(d.biayaTotal) || 0, bb = parseFloat(d.biayaBayar) || 0;
+        ss.getSheetByName(CONFIG.SHEETS.KASUS).appendRow([id, d.idKlien, d.idLawan, d.tipeKasus, d.statusKasus, d.tglDaftar, d.noPerkara, d.statusPerkara, d.tahunPerkara, d.pengadilan, d.noRegister, d.hakimKetua, d.hakimAnggota, d.mediator, d.panitera, d.estimasiSelesai, bt, bb, bt - bb, d.keterangan]);
+        result.id = id; result.message = 'Kasus tersimpan';
+        break;
+      case 'addKeuangan':
+        var id = getLatestId(CONFIG.SHEETS.KEUANGAN, CONFIG.PREFIX.KEUANGAN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.KEUANGAN).appendRow([id, d.idKasus, d.tipe, d.deskripsi, parseFloat(d.jumlah), d.metodeBayar, d.tanggal, d.keterangan]);
+        result.id = id; result.message = 'Keuangan tersimpan';
+        break;
+      case 'addJadwal':
+        var id = getLatestId(CONFIG.SHEETS.JADWAL, CONFIG.PREFIX.JADWAL);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.JADWAL).appendRow([id, d.idKasus, d.tipeJadwal, d.tanggal, d.waktu, d.lokasi, d.status, d.keterangan]);
+        result.id = id; result.message = 'Jadwal tersimpan';
+        break;
+      case 'addDokumen':
+        var id = getLatestId(CONFIG.SHEETS.DOKUMEN, CONFIG.PREFIX.DOKUMEN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.DOKUMEN).appendRow([id, d.idKasus, d.namaDokumen, d.tipeDokumen, d.linkDrive, d.tglUpload, d.keterangan]);
+        result.id = id; result.message = 'Dokumen tersimpan';
+        break;
+      case 'addTagihan':
+        var id = getLatestId(CONFIG.SHEETS.TAGIHAN, CONFIG.PREFIX.TAGIHAN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.TAGIHAN).appendRow([id, d.idKasus, d.noInvoice, d.item, parseFloat(d.jumlah), d.statusBayar, d.jatuhTempo, d.tglBayar, d.keterangan]);
+        result.id = id; result.message = 'Tagihan tersimpan';
+        break;
+      case 'addCatatan':
+        var id = getLatestId(CONFIG.SHEETS.CATATAN, CONFIG.PREFIX.CATATAN);
+        var d = JSON.parse(e.parameter.data);
+        ss.getSheetByName(CONFIG.SHEETS.CATATAN).appendRow([id, d.idKasus, d.tanggal, d.judul, d.isi, d.tipe, d.oleh]);
+        result.id = id; result.message = 'Catatan tersimpan';
+        break;
+      default:
+        result.success = false;
+        result.message = 'Action tidak dikenali: ' + action;
+    }
+  } catch(err) {
+    result.success = false;
+    result.message = err.message;
+  }
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// 21. WEB APP - doPost
 // ============================================================
 function doPost(e) {
   try {
