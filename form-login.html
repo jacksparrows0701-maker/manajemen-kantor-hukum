@@ -94,7 +94,7 @@
 
       fetch(WEB_APP_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
           action: 'login',
           username: document.getElementById('username').value,
@@ -139,7 +139,7 @@
 
       fetch(WEB_APP_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'text/plain' },
         body: JSON.stringify({
           action: 'changePassword',
           username: document.getElementById('cpUsername').value,
