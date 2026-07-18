@@ -916,6 +916,23 @@ function verifyLogin(username, password) {
 }
 
 // ============================================================
+// 19b. CHANGE PASSWORD
+// ============================================================
+function changePassword(username, oldPassword, newPassword) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.SHEETS.ADMIN);
+  if (!sheet) return { success: false, message: 'Sheet Admin tidak ditemukan' };
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && data[i][1] === oldPassword) {
+      sheet.getRange(i + 1, 2).setValue(newPassword);
+      return { success: true, message: 'Password berhasil diganti' };
+    }
+  }
+  return { success: false, message: 'Username atau password lama salah' };
+}
+
+// ============================================================
 // 20. WEB APP - doPost
 // ============================================================
 function doPost(e) {
@@ -928,6 +945,10 @@ function doPost(e) {
     switch (action) {
       case 'login':
         result = verifyLogin(data.username, data.password);
+        break;
+
+      case 'changePassword':
+        result = changePassword(data.username, data.oldPassword, data.newPassword);
         break;
 
       case 'generateSuratKuasa':
