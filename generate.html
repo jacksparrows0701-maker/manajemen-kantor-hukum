@@ -62,7 +62,7 @@
         <label>ID Kasus <span class="req">*</span></label>
         <input type="text" id="idKasusSemua" placeholder="KKS-001">
       </div>
-      <button class="btn btn-green" onclick="generateSemua()">Generate 3 Dokumen Sekaligus</button>
+      <button class="btn btn-green" onclick="generateSemua(event)">Generate 3 Dokumen Sekaligus</button>
       <div id="resultSemua" class="result">
         <strong>Semua surat berhasil!</strong>
         <div class="label">Surat Kuasa:</div>
@@ -92,7 +92,7 @@
         <label>ID Kasus <span class="req">*</span></label>
         <input type="text" id="idKasusKuasa" placeholder="KKS-001">
       </div>
-      <button class="btn btn-purple" onclick="generateKuasa()">Generate Surat Kuasa</button>
+      <button class="btn btn-purple" onclick="generateKuasa(event)">Generate Surat Kuasa</button>
       <div id="resultKuasa" class="result">
         Surat Kuasa berhasil! <a id="linkKuasa" href="#" target="_blank">Buka Surat Kuasa</a>
       </div>
@@ -106,7 +106,7 @@
         <label>ID Tagihan <span class="req">*</span></label>
         <input type="text" id="idTagihan" placeholder="TG-001">
       </div>
-      <button class="btn btn-orange" onclick="generateInvoice()">Generate Invoice</button>
+      <button class="btn btn-orange" onclick="generateInvoice(event)">Generate Invoice</button>
       <div id="resultInvoice" class="result">
         Invoice berhasil! <a id="linkInvoice" href="#" target="_blank">Buka Invoice</a>
       </div>
@@ -118,23 +118,12 @@
     if (localStorage.getItem('adminLogin') !== 'true') { window.location.href = 'index.html'; }
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwvrlT6Fep-97KukDQvfW_bKGxZ5UL8_W9XMCgLJLI0yd1GDiQiVaeUugOLwXMCDF9VYg/exec';
 
-    function showResult(prefix, data) {
-      if (data.success) {
-        document.getElementById('result' + prefix).style.display = 'block';
-        document.getElementById('error' + prefix).style.display = 'none';
-      } else {
-        document.getElementById('error' + prefix).textContent = data.message || 'Gagal generate';
-        document.getElementById('error' + prefix).style.display = 'block';
-        document.getElementById('result' + prefix).style.display = 'none';
-      }
-    }
-
-    function generateSemua() {
+    function generateSemua(e) {
       var idKlien = document.getElementById('idKlienSemua').value;
       var idLawan = document.getElementById('idLawanSemua').value;
       var idKasus = document.getElementById('idKasusSemua').value;
       if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
-      var btn = event.target;
+      var btn = e.target;
       btn.disabled = true; btn.textContent = 'Generating 3 dokumen...';
 
       fetch(WEB_APP_URL, {
@@ -166,12 +155,12 @@
       });
     }
 
-    function generateKuasa() {
+    function generateKuasa(e) {
       var idKlien = document.getElementById('idKlienKuasa').value;
       var idLawan = document.getElementById('idLawanKuasa').value;
       var idKasus = document.getElementById('idKasusKuasa').value;
       if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
-      var btn = event.target;
+      var btn = e.target;
       btn.disabled = true; btn.textContent = 'Generating...';
 
       fetch(WEB_APP_URL, {
@@ -201,10 +190,10 @@
       });
     }
 
-    function generateInvoice() {
+    function generateInvoice(e) {
       var id = document.getElementById('idTagihan').value;
       if (!id) return alert('Masukkan ID Tagihan');
-      var btn = event.target;
+      var btn = e.target;
       btn.disabled = true; btn.textContent = 'Generating...';
 
       fetch(WEB_APP_URL, {
