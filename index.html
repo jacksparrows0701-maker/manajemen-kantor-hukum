@@ -47,47 +47,47 @@
   <div class="container">
     <div class="section-title">Input Data</div>
     <div class="grid">
-      <a href="form-klien.html?v=2" class="card blue">
+      <a href="klien.html?v=2" class="card blue">
         <div class="icon">&#128100;</div>
         <div class="label">Data Klien</div>
         <div class="desc">Tambah klien baru</div>
       </a>
-      <a href="form-lawan.html?v=2" class="card red">
+      <a href="lawan.html?v=2" class="card red">
         <div class="icon">&#9878;</div>
         <div class="label">Data Lawan</div>
         <div class="desc">Tambah data lawan</div>
       </a>
-      <a href="form-kasus.html?v=2" class="card purple">
+      <a href="kasus.html?v=2" class="card purple">
         <div class="icon">&#128220;</div>
         <div class="label">Data Kasus</div>
         <div class="desc">Tambah kasus baru</div>
       </a>
-      <a href="form-keuangan.html?v=2" class="card green">
+      <a href="keuangan.html?v=2" class="card green">
         <div class="icon">&#128176;</div>
         <div class="label">Keuangan</div>
         <div class="desc">Input transaksi</div>
       </a>
-      <a href="form-jadwal.html?v=2" class="card orange">
+      <a href="jadwal.html?v=2" class="card orange">
         <div class="icon">&#128197;</div>
         <div class="label">Jadwal</div>
         <div class="desc">Sidang / Konsultasi</div>
       </a>
-      <a href="form-dokumen.html?v=2" class="card teal">
+      <a href="dokumen.html?v=2" class="card teal">
         <div class="icon">&#128196;</div>
         <div class="label">Dokumen</div>
         <div class="desc">Upload file</div>
       </a>
-      <a href="form-tagihan.html?v=2" class="card brown">
+      <a href="tagihan.html?v=2" class="card brown">
         <div class="icon">&#128179;</div>
         <div class="label">Tagihan</div>
         <div class="desc">Buat invoice</div>
       </a>
-      <a href="form-catatan.html?v=2" class="card pink">
+      <a href="catatan.html?v=2" class="card pink">
         <div class="icon">&#128221;</div>
         <div class="label">Catatan</div>
         <div class="desc">Perkembangan kasus</div>
       </a>
-      <a href="form-generate.html?v=2" class="card brown">
+      <a href="generate.html?v=2" class="card brown">
         <div class="icon">&#128196;</div>
         <div class="label">Generate</div>
         <div class="desc">Invoice & Surat PDF</div>
@@ -99,7 +99,7 @@
 
   <script>
     if (localStorage.getItem('adminLogin') !== 'true') {
-      window.location.href = 'form-login.html';
+      window.location.href = 'login.html';
     }
     document.getElementById('userName').textContent = localStorage.getItem('adminName') || 'Admin';
 
@@ -107,7 +107,7 @@
       localStorage.removeItem('adminLogin');
       localStorage.removeItem('adminName');
       localStorage.removeItem('adminRole');
-      window.location.href = 'form-login.html';
+      window.location.href = 'login.html';
     }
   </script>
 </body>
