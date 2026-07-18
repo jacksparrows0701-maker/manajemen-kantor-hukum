@@ -402,22 +402,22 @@ function generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan) {
   hakKuasa.setSpacingAfter(24);
 
   var ttdSection = body.appendParagraph('');
-  ttdSection.appendInlineContainer('\n\n\n');
-  ttdSection.appendInlineContainer('MUHAMMAD IHSAN FAUZI, S.H., M.H');
+  ttdSection.appendText('\n\n\n');
+  ttdSection.appendText('MUHAMMAD IHSAN FAUZI, S.H., M.H');
   ttdSection.setSpacingAfter(6);
 
   var ttdPemberi = body.appendParagraph('');
-  ttdPemberi.appendInlineContainer('Bandung, ' + tanggalSurat);
-  ttdPemberi.appendInlineContainer('\n\n');
-  ttdPemberi.appendInlineContainer('PENERIMA KUASA');
-  ttdPemberi.appendInlineContainer('\n\n');
-  ttdPemberi.appendInlineContainer('PEMBERI KUASA');
-  ttdPemberi.appendInlineContainer('\n\n\n\n');
-  ttdPemberi.appendInlineContainer(klien.nama.toUpperCase());
+  ttdPemberi.appendText('Bandung, ' + tanggalSurat);
+  ttdPemberi.appendText('\n\n');
+  ttdPemberi.appendText('PENERIMA KUASA');
+  ttdPemberi.appendText('\n\n');
+  ttdPemberi.appendText('PEMBERI KUASA');
+  ttdPemberi.appendText('\n\n\n\n');
+  ttdPemberi.appendText(klien.nama.toUpperCase());
   ttdPemberi.setSpacingAfter(6);
 
   var ttd2 = body.appendParagraph('');
-  ttd2.appendInlineContainer('RUDI KURNIAWAN, S.H.');
+  ttd2.appendText('RUDI KURNIAWAN, S.H.');
   ttd2.setSpacingAfter(24);
 
   // E-Court Section
