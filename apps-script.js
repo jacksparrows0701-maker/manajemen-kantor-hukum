@@ -309,21 +309,19 @@ function getDataKasus(idKasus) {
 // ============================================================
 // 9. GENERATE SURAT KUASA (Google Docs - bisa diedit)
 // ============================================================
-function generateSuratKuasa(idKlien, idLawan, idKasus) {
+function generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan) {
   var klien = getDataKlien(idKlien);
   var lawan = getDataLawan(idLawan);
-  var kasus = getDataKasus(idKasus);
 
   if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
   if (!lawan) return { success: false, message: 'Lawan tidak ditemukan' };
-  if (!kasus) return { success: false, message: 'Kasus tidak ditemukan' };
 
-  var kategori = kasus.tipeKasus === 'Cerai Gugat' ? 'PDTG' : 'PDTT';
+  var kategori = tipeKasus === 'Cerai Gugat' ? 'PDTG' : 'PDTT';
   var nomorSurat = getNomorSurat('Surat Kuasa', kategori);
   var binBintiKlien = formatBinBinti(klien.jenisKelamin, klien.namaAyah);
   var binBintiLawan = formatBinBinti(lawan.jenisKelamin, lawan.namaAyah);
-  var pihakLawan = kasus.tipeKasus === 'Cerai Gugat' ? 'Tergugat' : 'Termohon';
-  var pihakKlien = kasus.tipeKasus === 'Cerai Gugat' ? 'Penggugat' : 'Pemohon';
+  var pihakLawan = tipeKasus === 'Cerai Gugat' ? 'Tergugat' : 'Termohon';
+  var pihakKlien = tipeKasus === 'Cerai Gugat' ? 'Penggugat' : 'Pemohon';
   var tglLahirKlien = klien.tempatLahir + ', ' + Utilities.formatDate(new Date(klien.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
   var tglLahirLawan = lawan.tempatLahir + ', ' + Utilities.formatDate(new Date(lawan.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
   var tanggalSurat = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd MMMM yyyy');
@@ -343,7 +341,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
   title.setFontSize(14);
   title.setSpacingAfter(6);
 
-  var nomor = body.appendParagraph('Nomor: ' + nomorSurat);
+  var nomor = body.appendParagraph('Nomor : ' + nomorSurat);
   nomor.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
   nomor.setSpacingAfter(12);
 
@@ -376,7 +374,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
 
   var isiKuasa = body.appendParagraph(
     'Untuk mewakili kepentingan Pemberi Kuasa/' + pihakKlien + ' dapat bertindak bersama-sama ataupun sendiri-sendiri ' +
-    'untuk mengajukan Perkara ' + kasus.tipeKasus + ' di ' + (kasus.pengadilan || 'Pengadilan Agama ...') + ' terhadap:'
+    'untuk mengajukan Perkara ' + tipeKasus + ' di ' + (pengadilan || 'Pengadilan Agama ...') + ' terhadap:'
   );
   isiKuasa.setSpacingAfter(6);
 
@@ -391,7 +389,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
 
   var hakKuasa = body.appendParagraph(
     'Untuk yang diberi kuasa berhak mewakili Pemberi Kuasa untuk membuat, menandatangani, serta mendaftarkan ' +
-    'perkara ' + kasus.tipeKasus + ' melalui sistem manual ataupun sistem ecourt Mahkamah Agung. ' +
+    'perkara ' + tipeKasus + ' beserta tuntutan berupa nafkah ataupun terhutang terhadap ' + pihakLawan + ' melalui sistem manual ataupun sistem ecourt Mahkamah Agung. ' +
     'Hadir setiap acara persidangan, memperbaiki gugatan beserta petitumnya, membuat replik, menerima duplik ' +
     'mengajukan bukti serta saksi dan menolak serta mengajukan keberatan atas bukti yang dihadirkan ' + pihakLawan + ' dalam persidangan ' +
     'baik itu tertulis maupun saksi, mengajukan kesimpulan, mengajukan upaya hukum yang dianggap penting dan perlu serta berguna ' +
@@ -425,7 +423,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
   // E-Court Section
   body.appendParagraph('PERSETUJUAN PIHAK').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
   body.appendParagraph('BERACARA SECARA ELEKTRONIK (E-COURT)').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
-  body.appendParagraph('DI ' + (kasus.pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
+  body.appendParagraph('DI ' + (pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
 
   body.appendParagraph('Saya yang bertanda-tangan dibawah ini:').setSpacingAfter(6);
 
@@ -438,7 +436,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
   ).setSpacingAfter(6);
 
   body.appendParagraph(
-    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (kasus.pengadilan || 'Pengadilan Agama') + '. ' +
+    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (pengadilan || 'Pengadilan Agama') + '. ' +
     'Berdasarkan Peraturan Mahkamah Agung Republik Indonesia Nomor 3 Tahun 2018, Tentang Administrasi Perkara di Pengadilan Secara Elektronik, para pihak tersebut diatas menyatakan:'
   ).setSpacingAfter(6);
 
@@ -447,7 +445,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
   body.appendParagraph('Menerima panggilan sidang dan pemberitahuan putusan perkara perdata/permohonan secara elektronik;').setSpacingAfter(6);
 
   body.appendParagraph(
-    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (kasus.pengadilan || 'Pengadilan Agama') +
+    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (pengadilan || 'Pengadilan Agama') +
     ' yang harus dipenuhi oleh para pihak dihadapan Panitera Pengadilan tersebut.'
   ).setSpacingAfter(12);
 
@@ -464,7 +462,7 @@ function generateSuratKuasa(idKlien, idLawan, idKasus) {
 // ============================================================
 // 10. GENERATE SURAT DOMISILI (Google Docs - bisa diedit)
 // ============================================================
-function generateDomisili(idKlien) {
+function generateDomisili(idKlien, pengadilan) {
   var klien = getDataKlien(idKlien);
   if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
 
@@ -494,7 +492,7 @@ function generateDomisili(idKlien) {
   ).setSpacingAfter(12);
 
   body.appendParagraph(
-    'Demikian Surat Pernyataan ini saya buat untuk keperluan pengajuan gugatan di ' + (kasus.pengadilan || 'Pengadilan Agama Bandung') +
+    'Demikian Surat Pernyataan ini saya buat untuk keperluan pengajuan gugatan di ' + (pengadilan || 'Pengadilan Agama Bandung') +
     '. Apabila di kemudian hari terbukti bahwa Surat Pernyataan ini tidak benar, maka saya bersedia bertanggung jawab sesuai peraturan perundang-undangan yang berlaku.'
   ).setSpacingAfter(24);
 
@@ -572,17 +570,14 @@ function generateSuratECourt(idKlien, idKasus) {
 // ============================================================
 // 12. GENERATE SEMUA SURAT SEKALIGUS
 // ============================================================
-function generateSemuaSurat(idKlien, idLawan, idKasus) {
+function generateSemuaSurat(idKlien, idLawan, tipeKasus, pengadilan) {
   var results = {};
 
-  var suratKuasa = generateSuratKuasa(idKlien, idLawan, idKasus);
+  var suratKuasa = generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan);
   results.suratKuasa = suratKuasa;
 
-  var domisili = generateDomisili(idKlien);
+  var domisili = generateDomisili(idKlien, pengadilan);
   results.domisili = domisili;
-
-  var eCourt = generateSuratECourt(idKlien, idKasus);
-  results.eCourt = eCourt;
 
   return results;
 }
@@ -679,7 +674,11 @@ function setupDashboard() {
       var tgl = new Date(dataJ[i][3]);
       if (tgl >= now && tgl <= mingguDepan && dataJ[i][6] !== 'Dibatalkan') {
         dashboard.getRange('A' + row).setValue(Utilities.formatDate(tgl, 'Asia/Jakarta', 'dd/MM/yyyy'));
-        dashboard.getRange('B' + row).setValue(dataJ[i][4]);
+        var waktu = dataJ[i][4];
+        if (waktu instanceof Date) {
+          waktu = Utilities.formatDate(waktu, 'Asia/Jakarta', 'HH:mm');
+        }
+        dashboard.getRange('B' + row).setValue(waktu);
         dashboard.getRange('C' + row).setValue(dataJ[i][2]);
         dashboard.getRange('D' + row).setValue(dataJ[i][5]);
         dashboard.getRange('E' + row).setValue(dataJ[i][6]);
@@ -1038,12 +1037,12 @@ function doPost(e) {
         break;
 
       case 'generateSuratKuasa':
-        var r = generateSuratKuasa(data.idKlien, data.idLawan, data.idKasus);
+        var r = generateSuratKuasa(data.idKlien, data.idLawan, data.tipeKasus, data.pengadilan);
         result = r;
         break;
 
       case 'generateDomisili':
-        var r = generateDomisili(data.idKlien);
+        var r = generateDomisili(data.idKlien, data.pengadilan);
         result = r;
         break;
 
@@ -1053,7 +1052,7 @@ function doPost(e) {
         break;
 
       case 'generateSemuaSurat':
-        var r = generateSemuaSurat(data.idKlien, data.idLawan, data.idKasus);
+        var r = generateSemuaSurat(data.idKlien, data.idLawan, data.tipeKasus, data.pengadilan);
         result.results = r;
         result.message = 'Semua surat berhasil digenerate';
         break;

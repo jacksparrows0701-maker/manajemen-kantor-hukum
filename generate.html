@@ -16,8 +16,8 @@
     .form-group { margin-bottom: 16px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
     .form-group label .req { color: #e74c3c; }
-    .form-group input { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; }
-    .form-group input:focus { border-color: #2980b9; outline: none; }
+    .form-group input, .form-group select { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; }
+    .form-group input:focus, .form-group select:focus { border-color: #2980b9; outline: none; }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a5276, #2980b9); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
     .btn:hover { opacity: 0.9; }
@@ -49,12 +49,12 @@
   <div class="form-container">
     <!-- Generate Semua Surat -->
     <div class="form-card">
-      <h3>Generate Semua Surat (3 Dokumen)</h3>
+      <h3>Generate Surat Kuasa + Domisili</h3>
       <div class="info-box">
-        Akan generate: <strong>Surat Kuasa</strong> + <strong>Surat Domisili</strong> + <strong>Surat E-Court</strong><br>
+        Akan generate: <strong>Surat Kuasa</strong> + <strong>Surat Domisili</strong><br>
         Semua dokumen akan dibuat di Google Docs (bisa diedit sebelum download .docx)
       </div>
-      <div class="section-label">Data Klien & Kasus</div>
+      <div class="section-label">Data Klien & Lawan</div>
       <div class="row">
         <div class="form-group">
           <label>ID Klien <span class="req">*</span></label>
@@ -71,22 +71,28 @@
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>ID Kasus <span class="req">*</span></label>
-        <div class="ac-wrap">
-          <input type="text" id="idKasusSemua" placeholder="Klik untuk pilih..." autocomplete="off">
-          <div class="ac-list" id="acIdKasusSemua"></div>
+      <div class="section-label">Data Kasus</div>
+      <div class="row">
+        <div class="form-group">
+          <label>Tipe Kasus <span class="req">*</span></label>
+          <select id="tipeKasusSemua" required>
+            <option value="">-- Pilih --</option>
+            <option>Cerai Gugat</option>
+            <option>Cerai Talak</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pengadilan <span class="req">*</span></label>
+          <input type="text" id="pengadilanSemua" placeholder="Contoh: Pengadilan Agama Bandung" required>
         </div>
       </div>
-      <button class="btn btn-green" onclick="generateSemua(event)">Generate 3 Dokumen Sekaligus</button>
+      <button class="btn btn-green" onclick="generateSemua(event)">Generate 2 Dokumen Sekaligus</button>
       <div id="resultSemua" class="result">
         <strong>Semua surat berhasil!</strong>
         <div class="label">Surat Kuasa:</div>
         <a id="linkKuasaSemua" href="#" target="_blank">Buka Surat Kuasa</a>
         <div class="label">Surat Domisili:</div>
         <a id="linkDomisiliSemua" href="#" target="_blank">Buka Surat Domisili</a>
-        <div class="label">Surat E-Court:</div>
-        <a id="linkECourtSemua" href="#" target="_blank">Buka Surat E-Court</a>
       </div>
       <div id="errorSemua" class="error-msg"></div>
     </div>
@@ -110,11 +116,18 @@
           </div>
         </div>
       </div>
-      <div class="form-group">
-        <label>ID Kasus <span class="req">*</span></label>
-        <div class="ac-wrap">
-          <input type="text" id="idKasusKuasa" placeholder="Klik untuk pilih..." autocomplete="off">
-          <div class="ac-list" id="acIdKasusKuasa"></div>
+      <div class="row">
+        <div class="form-group">
+          <label>Tipe Kasus <span class="req">*</span></label>
+          <select id="tipeKasusKuasa" required>
+            <option value="">-- Pilih --</option>
+            <option>Cerai Gugat</option>
+            <option>Cerai Talak</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Pengadilan <span class="req">*</span></label>
+          <input type="text" id="pengadilanKuasa" placeholder="Contoh: Pengadilan Agama Bandung" required>
         </div>
       </div>
       <button class="btn btn-purple" onclick="generateKuasa(event)">Generate Surat Kuasa</button>
@@ -183,31 +196,29 @@
     }
     initAc('idKlienSemua', 'acIdKlienSemua', 'Data Klien', 'ID', 'Nama');
     initAc('idLawanSemua', 'acIdLawanSemua', 'Data Lawan', 'ID', 'Nama');
-    initAc('idKasusSemua', 'acIdKasusSemua', 'Data Kasus', 'ID', 'No Perkara');
     initAc('idKlienKuasa', 'acIdKlienKuasa', 'Data Klien', 'ID', 'Nama');
     initAc('idLawanKuasa', 'acIdLawanKuasa', 'Data Lawan', 'ID', 'Nama');
-    initAc('idKasusKuasa', 'acIdKasusKuasa', 'Data Kasus', 'ID', 'No Perkara');
     initAc('idTagihan', 'acIdTagihan', 'Data Tagihan', 'ID', 'No Invoice');
 
     function generateSemua(e) {
       var idKlien = document.getElementById('idKlienSemua').value;
       var idLawan = document.getElementById('idLawanSemua').value;
-      var idKasus = document.getElementById('idKasusSemua').value;
-      if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
+      var tipeKasus = document.getElementById('tipeKasusSemua').value;
+      var pengadilan = document.getElementById('pengadilanSemua').value;
+      if (!idKlien || !idLawan || !tipeKasus || !pengadilan) return alert('Semua field wajib diisi');
       var btn = e.target;
-      btn.disabled = true; btn.textContent = 'Generating 3 dokumen...';
+      btn.disabled = true; btn.textContent = 'Generating 2 dokumen...';
 
       fetch(WEB_APP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'generateSemuaSurat', idKlien: idKlien, idLawan: idLawan, idKasus: idKasus })
+        body: JSON.stringify({ action: 'generateSemuaSurat', idKlien: idKlien, idLawan: idLawan, tipeKasus: tipeKasus, pengadilan: pengadilan })
       }).then(function(r) { return r.text(); }).then(function(t) {
         try {
           var res = JSON.parse(t);
           if (res.results) {
             if (res.results.suratKuasa.success) document.getElementById('linkKuasaSemua').href = res.results.suratKuasa.link;
             if (res.results.domisili.success) document.getElementById('linkDomisiliSemua').href = res.results.domisili.link;
-            if (res.results.eCourt.success) document.getElementById('linkECourtSemua').href = res.results.eCourt.link;
             document.getElementById('resultSemua').style.display = 'block';
             document.getElementById('errorSemua').style.display = 'none';
           } else {
@@ -218,26 +229,27 @@
           document.getElementById('errorSemua').textContent = 'Response tidak valid';
           document.getElementById('errorSemua').style.display = 'block';
         }
-        btn.disabled = false; btn.textContent = 'Generate 3 Dokumen Sekaligus';
+        btn.disabled = false; btn.textContent = 'Generate 2 Dokumen Sekaligus';
       }).catch(function(e) {
         document.getElementById('errorSemua').textContent = 'Error: ' + e.message;
         document.getElementById('errorSemua').style.display = 'block';
-        btn.disabled = false; btn.textContent = 'Generate 3 Dokumen Sekaligus';
+        btn.disabled = false; btn.textContent = 'Generate 2 Dokumen Sekaligus';
       });
     }
 
     function generateKuasa(e) {
       var idKlien = document.getElementById('idKlienKuasa').value;
       var idLawan = document.getElementById('idLawanKuasa').value;
-      var idKasus = document.getElementById('idKasusKuasa').value;
-      if (!idKlien || !idLawan || !idKasus) return alert('Semua field wajib diisi');
+      var tipeKasus = document.getElementById('tipeKasusKuasa').value;
+      var pengadilan = document.getElementById('pengadilanKuasa').value;
+      if (!idKlien || !idLawan || !tipeKasus || !pengadilan) return alert('Semua field wajib diisi');
       var btn = e.target;
       btn.disabled = true; btn.textContent = 'Generating...';
 
       fetch(WEB_APP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'generateSuratKuasa', idKlien: idKlien, idLawan: idLawan, idKasus: idKasus })
+        body: JSON.stringify({ action: 'generateSuratKuasa', idKlien: idKlien, idLawan: idLawan, tipeKasus: tipeKasus, pengadilan: pengadilan })
       }).then(function(r) { return r.text(); }).then(function(t) {
         try {
           var res = JSON.parse(t);
@@ -296,4 +308,3 @@
   </script>
 </body>
 </html>
-
