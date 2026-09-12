@@ -4,83 +4,64 @@
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Manajemen Kantor Hukum</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: linear-gradient(135deg, #1a5276, #2980b9); min-height: 100vh; display: flex; justify-content: center; align-items: center; }
-    .login-box { background: white; border-radius: 16px; padding: 40px 32px; width: 90%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-    .login-box h1 { text-align: center; color: #1a5276; font-size: 22px; margin-bottom: 6px; }
-    .login-box .subtitle { text-align: center; color: #888; font-size: 13px; margin-bottom: 28px; }
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
-    .form-group input { width: 100%; padding: 12px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
-    .form-group input:focus { border-color: #2980b9; outline: none; }
-    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #1a5276, #2980b9); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 4px; }
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .error-msg { background: #fdecea; color: #e74c3c; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; text-align: center; }
-    .link { text-align: center; margin-top: 16px; }
-    .link a { color: #2980b9; font-size: 13px; cursor: pointer; text-decoration: none; }
-    .link a:hover { text-decoration: underline; }
-
-    /* Modal Ganti Password */
-    .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-overlay.active { display: flex; }
-    .modal { background: white; border-radius: 12px; padding: 32px; width: 90%; max-width: 380px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); position: relative; }
-    .modal h2 { text-align: center; color: #1a5276; margin-bottom: 20px; font-size: 18px; }
-    .modal .close-btn { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 24px; color: #999; cursor: pointer; }
-    .modal .success-msg { background: #d4edda; color: #155724; padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; text-align: center; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="login-box">
-    <h1>Manajemen Kantor Hukum</h1>
-    <div class="subtitle">Masuk ke sistem manajemen</div>
-    <div class="error-msg" id="loginError"></div>
-    <form id="loginForm" onsubmit="doLogin(event)">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="username" placeholder="Masukkan username" required>
+  <div class="login-wrap">
+    <div class="login-box">
+      <div class="login-brand">
+        <div class="brand-icon" style="width:40px;height:40px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;">MK</div>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="password" placeholder="Masukkan password" required>
+      <h1>Manajemen Kantor Hukum</h1>
+      <div class="subtitle">Masuk ke sistem manajemen</div>
+      <div class="error-msg" id="loginError"></div>
+      <form id="loginForm" onsubmit="doLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Masukkan username" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Masukkan password" required>
+        </div>
+        <button type="submit" class="btn" id="btnLogin">Login</button>
+      </form>
+      <div style="text-align:center;margin-top:16px;">
+        <a href="#" onclick="showChangePassword()" style="font-size:13px;">Ganti Password</a>
       </div>
-      <button type="submit" class="btn" id="btnLogin">Login</button>
-    </form>
-    <div class="link">
-      <a onclick="showChangePassword()">Ganti Password</a>
     </div>
   </div>
 
-  <!-- Modal Ganti Password -->
-  <div class="modal-overlay" id="cpModal">
-    <div class="modal">
-      <button class="close-btn" onclick="hideChangePassword()">&times;</button>
-      <h2>Ganti Password</h2>
-      <div class="error-msg" id="cpError"></div>
-      <div class="success-msg" id="cpSuccess"></div>
-      <form id="cpForm" onsubmit="doChangePassword(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="cpUsername" placeholder="Masukkan username" required>
-        </div>
-        <div class="form-group">
-          <label>Password Lama</label>
-          <input type="password" id="cpOldPassword" placeholder="Masukkan password lama" required>
-        </div>
-        <div class="form-group">
-          <label>Password Baru</label>
-          <input type="password" id="cpNewPassword" placeholder="Masukkan password baru" required>
-        </div>
-        <button type="submit" class="btn" id="btnCP">Ganti Password</button>
-      </form>
+  <div class="overlay" id="cpModal" style="display:none;">
+    <div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;">
+      <div class="login-box" style="max-width:380px;position:relative;">
+        <button onclick="hideChangePassword()" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:20px;color:var(--text-secondary);cursor:pointer;">&times;</button>
+        <h1 style="font-size:18px;margin-bottom:4px;">Ganti Password</h1>
+        <div class="subtitle">Masukkan data Anda</div>
+        <div class="error-msg" id="cpError"></div>
+        <div style="background:var(--green-soft);color:var(--green);padding:10px;border-radius:8px;font-size:13px;margin-bottom:16px;display:none;text-align:center;" id="cpSuccess"></div>
+        <form id="cpForm" onsubmit="doChangePassword(event)">
+          <div class="form-group">
+            <label>Username</label>
+            <input type="text" id="cpUsername" placeholder="Masukkan username" required>
+          </div>
+          <div class="form-group">
+            <label>Password Lama</label>
+            <input type="password" id="cpOldPassword" placeholder="Masukkan password lama" required>
+          </div>
+          <div class="form-group">
+            <label>Password Baru</label>
+            <input type="password" id="cpNewPassword" placeholder="Masukkan password baru" required>
+          </div>
+          <button type="submit" class="btn" id="btnCP">Ganti Password</button>
+        </form>
+      </div>
     </div>
   </div>
 
   <script>
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAGAUbsmR07AIOlMph13H8AlVoFQJuyCVTasH47uICsP59eP-7AfU_f-q2S3QcSQgW1g/exec';
 
-    // Kalau sudah login, langsung ke index
     if (localStorage.getItem('adminLogin') === 'true') {
       window.location.href = 'index.html';
     }
@@ -114,12 +95,12 @@
     }
 
     function showChangePassword() {
-      document.getElementById('cpModal').classList.add('active');
+      document.getElementById('cpModal').style.display = 'block';
       document.getElementById('cpError').style.display = 'none';
       document.getElementById('cpSuccess').style.display = 'none';
     }
     function hideChangePassword() {
-      document.getElementById('cpModal').classList.remove('active');
+      document.getElementById('cpModal').style.display = 'none';
     }
 
     function doChangePassword(e) {
@@ -152,4 +133,3 @@
   </script>
 </body>
 </html>
-

@@ -4,98 +4,60 @@
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Catatan Kasus - Manajemen Kantor Hukum</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
-    .header { background: linear-gradient(135deg, #ad1457, #e91e63); color: white; padding: 20px; }
-    .header h1 { font-size: 20px; }
-    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
-    .form-container { max-width: 600px; margin: 20px auto; padding: 0 16px; }
-    .form-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 6px; }
-    .form-group label .req { color: #e74c3c; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.2s; }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #e91e63; outline: none; }
-    .form-group textarea { resize: vertical; min-height: 120px; }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #ad1457, #e91e63); color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px; }
-    .btn:hover { opacity: 0.9; }
-    .btn:disabled { background: #ccc; cursor: not-allowed; }
-    .success { display: none; text-align: center; padding: 40px 20px; }
-    .success .icon { font-size: 60px; margin-bottom: 16px; }
-    .success h2 { color: #27ae60; margin-bottom: 8px; }
-    .success p { color: #666; font-size: 14px; margin-bottom: 20px; }
-    .success .btn { background: #27ae60; }
-    .error-msg { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
-    .ac-wrap { position: relative; }
-    .ac-list { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1.5px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-    .ac-list.show { display: block; }
-    .ac-item { padding: 10px 12px; cursor: pointer; font-size: 13px; border-bottom: 1px solid #f0f0f0; }
-    .ac-item:hover { background: #eaf2f8; }
-    .ac-item .ac-id { font-weight: 700; color: #1a5276; }
-    .ac-item .ac-name { color: #666; margin-left: 6px; }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <a href="index.html">&larr; Kembali</a>
-    <h1>Catatan Perkembangan Kasus</h1>
-  </div>
-
-  <div class="form-container">
-    <div class="form-card">
-      <div id="errorMsg" class="error-msg"></div>
-      <form id="formCatatan">
-        <div class="form-group">
-          <label>ID Kasus <span class="req">*</span></label>
-          <div class="ac-wrap">
-            <input type="text" name="idKasus" id="idKasus" placeholder="Klik untuk pilih..." required autocomplete="off">
-            <div class="ac-list" id="acIdKasus"></div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><div class="brand-icon">MK</div><div><div class="brand-text">Manajemen Kantor Hukum</div><div class="brand-sub">Sistem Manajemen</div></div></div>
+      <nav>
+        <div class="nav-section">Menu</div>
+        <a href="index.html" class="nav-item"><span class="icon">&#127968;</span> Beranda</a>
+        <a href="lihat-data.html" class="nav-item"><span class="icon">&#128269;</span> Lihat Data</a>
+        <div class="nav-section">Input Data</div>
+        <a href="klien.html" class="nav-item"><span class="icon">&#128100;</span> Data Klien</a>
+        <a href="lawan.html" class="nav-item"><span class="icon">&#9878;</span> Data Lawan</a>
+        <a href="kasus.html" class="nav-item"><span class="icon">&#128220;</span> Data Kasus</a>
+        <a href="keuangan.html" class="nav-item"><span class="icon">&#128176;</span> Keuangan</a>
+        <a href="jadwal.html" class="nav-item"><span class="icon">&#128197;</span> Jadwal</a>
+        <a href="dokumen.html" class="nav-item"><span class="icon">&#128196;</span> Dokumen</a>
+        <a href="tagihan.html" class="nav-item"><span class="icon">&#128179;</span> Tagihan</a>
+        <a href="catatan.html" class="nav-item"><span class="icon">&#128221;</span> Catatan</a>
+      </nav>
+      <div class="user-box"><span class="uname" id="userName"></span><button class="logout-btn" onclick="logout()">Logout</button></div>
+    </aside>
+    <div class="overlay" id="overlay"></div>
+    <main class="main">
+      <div class="mobile-topbar"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><span class="brand-m">Manajemen Kantor Hukum</span></div>
+      <div class="page">
+        <h1 class="page-title">Catatan Perkembangan Kasus</h1>
+        <div class="form-container">
+          <div class="form-card">
+            <div id="errorMsg" class="error-msg"></div>
+            <form id="formCatatan">
+              <div class="form-group">
+                <label>ID Kasus <span class="req">*</span></label>
+                <div class="ac-wrap"><input type="text" name="idKasus" id="idKasus" placeholder="Klik untuk pilih..." required autocomplete="off"><div class="ac-list" id="acIdKasus"></div></div>
+              </div>
+              <div class="row">
+                <div class="form-group"><label>Tanggal <span class="req">*</span></label><input type="date" name="tanggal" required></div>
+                <div class="form-group"><label>Tipe Catatan <span class="req">*</span></label>
+                  <select name="tipe" required><option value="">-- Pilih --</option><option>Update</option><option>Penting</option><option>Telepon</option><option>Rapat</option><option>Sidang</option><option>Lainnya</option></select>
+                </div>
+              </div>
+              <div class="form-group"><label>Judul <span class="req">*</span></label><input type="text" name="judul" placeholder="Contoh: Persiapan sidang ke-3" required></div>
+              <div class="form-group"><label>Isi Catatan <span class="req">*</span></label><textarea name="isi" placeholder="Tulis perkembangan kasus di sini..." required></textarea></div>
+              <div class="form-group"><label>Oleh</label><input type="text" name="oleh" placeholder="Nama staff/pengacara"></div>
+              <button type="submit" class="btn" id="btnSubmit">Simpan Catatan</button>
+            </form>
+            <div class="success" id="successMsg"><div class="icon">&#9989;</div><h2>Berhasil Disimpan!</h2><p>Catatan berhasil dicatat</p><button class="btn btn-success" onclick="resetForm()">Tambah Catatan Baru</button></div>
           </div>
         </div>
-        <div class="row">
-          <div class="form-group">
-            <label>Tanggal <span class="req">*</span></label>
-            <input type="date" name="tanggal" required>
-          </div>
-          <div class="form-group">
-            <label>Tipe Catatan <span class="req">*</span></label>
-            <select name="tipe" required>
-              <option value="">-- Pilih --</option>
-              <option>Update</option>
-              <option>Penting</option>
-              <option>Telepon</option>
-              <option>Rapat</option>
-              <option>Sidang</option>
-              <option>Lainnya</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Judul <span class="req">*</span></label>
-          <input type="text" name="judul" placeholder="Contoh: Persiapan sidang ke-3" required>
-        </div>
-        <div class="form-group">
-          <label>Isi Catatan <span class="req">*</span></label>
-          <textarea name="isi" placeholder="Tulis perkembangan kasus di sini..." required></textarea>
-        </div>
-        <div class="form-group">
-          <label>Oleh</label>
-          <input type="text" name="oleh" placeholder="Nama staff/pengacara">
-        </div>
-        <button type="submit" class="btn" id="btnSubmit">Simpan Catatan</button>
-      </form>
-
-      <div class="success" id="successMsg">
-        <div class="icon">&#9989;</div>
-        <h2>Berhasil Disimpan!</h2>
-        <p>Catatan berhasil dicatat</p>
-        <button class="btn" onclick="resetForm()">Tambah Catatan Baru</button>
       </div>
-    </div>
+    </main>
   </div>
 
+  <script src="app.js"></script>
   <script>
     if (localStorage.getItem('adminLogin') !== 'true') { window.location.href = 'index.html'; }
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAGAUbsmR07AIOlMph13H8AlVoFQJuyCVTasH47uICsP59eP-7AfU_f-q2S3QcSQgW1g/exec';
@@ -105,18 +67,11 @@
       var btn = document.getElementById('btnSubmit');
       btn.disabled = true;
       btn.textContent = 'Menyimpan...';
-
       var form = e.target;
       var data = {
-        action: 'addCatatan',
-        idKasus: form.idKasus.value,
-        tanggal: form.tanggal.value,
-        judul: form.judul.value,
-        isi: form.isi.value,
-        tipe: form.tipe.value,
-        oleh: form.oleh.value
+        action: 'addCatatan', idKasus: form.idKasus.value, tanggal: form.tanggal.value, judul: form.judul.value,
+        isi: form.isi.value, tipe: form.tipe.value, oleh: form.oleh.value
       };
-
       document.getElementById('formCatatan').style.display = 'none';
       document.getElementById('successMsg').style.display = 'block';
       btn.disabled = false;
@@ -145,11 +100,7 @@
           var div = document.createElement('div');
           div.className = 'ac-item';
           div.innerHTML = '<span class="ac-id">' + r[idKey] + '</span><span class="ac-name">' + r[nameKey] + '</span>';
-          div.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            input.value = r[idKey];
-            list.classList.remove('show');
-          });
+          div.addEventListener('mousedown', function(e) { e.preventDefault(); input.value = r[idKey]; list.classList.remove('show'); });
           list.appendChild(div);
         });
         list.classList.toggle('show', filtered.length > 0);
@@ -159,9 +110,7 @@
           fetch(WEB_APP_URL + '?action=getData&sheet=' + encodeURIComponent(sheetName))
             .then(function(r) { return r.json(); })
             .then(function(res) { if (res.data) { data = res.data; showDropdown(); } });
-        } else {
-          showDropdown();
-        }
+        } else { showDropdown(); }
       });
       input.addEventListener('input', function() { showDropdown(); });
       input.addEventListener('blur', function() { setTimeout(function() { list.classList.remove('show'); }, 200); });
@@ -170,4 +119,3 @@
   </script>
 </body>
 </html>
-

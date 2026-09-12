@@ -4,116 +4,119 @@
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manajemen Kantor Hukum</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
-    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 40px 20px; text-align: center; position: relative; }
-    .header h1 { font-size: 28px; margin-bottom: 8px; }
-    .header p { opacity: 0.85; font-size: 14px; }
-    .user-bar { position: absolute; top: 16px; right: 16px; display: flex; align-items: center; gap: 12px; }
-    .user-bar .name { font-size: 13px; font-weight: 600; }
-    .user-bar .logout-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); color: white; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
-    .user-bar .logout-btn:hover { background: rgba(255,255,255,0.3); }
-    .container { max-width: 900px; margin: -30px auto 40px; padding: 0 16px; }
-    .section-title { font-size: 16px; font-weight: 700; color: #1a5276; margin: 24px 0 12px; padding-left: 4px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
-    .card { background: white; border-radius: 12px; padding: 24px 16px; text-align: center; text-decoration: none; color: #333; box-shadow: 0 2px 8px rgba(0,0,0,0.06); transition: all 0.2s; border: 2px solid transparent; }
-    .card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); border-color: #2980b9; }
-    .card .icon { font-size: 36px; margin-bottom: 10px; }
-    .card .label { font-size: 14px; font-weight: 600; }
-    .card .desc { font-size: 11px; color: #888; margin-top: 4px; }
-    .card.blue { border-left: 4px solid #2980b9; }
-    .card.green { border-left: 4px solid #27ae60; }
-    .card.orange { border-left: 4px solid #e67e22; }
-    .card.purple { border-left: 4px solid #8e44ad; }
-    .card.red { border-left: 4px solid #e74c3c; }
-    .card.teal { border-left: 4px solid #16a085; }
-    .card.pink { border-left: 4px solid #e91e63; }
-    .card.brown { border-left: 4px solid #795548; }
-    .footer { text-align: center; padding: 20px; color: #999; font-size: 12px; }
-    @media (max-width: 500px) { .grid { grid-template-columns: 1fr 1fr; } .card { padding: 18px 12px; } }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <h1>Manajemen Kantor Hukum</h1>
-    <p>Sistem Input & Kelola Data Kasus</p>
-    <div class="user-bar">
-      <span class="name" id="userName"></span>
-      <button class="logout-btn" onclick="logout()">Logout</button>
-    </div>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">MK</div>
+        <div>
+          <div class="brand-text">Manajemen Kantor Hukum</div>
+          <div class="brand-sub">Sistem Manajemen</div>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-section">Menu</div>
+        <a href="index.html" class="nav-item"><span class="icon">&#127968;</span> Beranda</a>
+        <a href="lihat-data.html" class="nav-item"><span class="icon">&#128269;</span> Lihat Data</a>
+        <div class="nav-section">Input Data</div>
+        <a href="klien.html" class="nav-item"><span class="icon">&#128100;</span> Data Klien</a>
+        <a href="lawan.html" class="nav-item"><span class="icon">&#9878;</span> Data Lawan</a>
+        <a href="kasus.html" class="nav-item"><span class="icon">&#128220;</span> Data Kasus</a>
+        <a href="keuangan.html" class="nav-item"><span class="icon">&#128176;</span> Keuangan</a>
+        <a href="jadwal.html" class="nav-item"><span class="icon">&#128197;</span> Jadwal</a>
+        <a href="dokumen.html" class="nav-item"><span class="icon">&#128196;</span> Dokumen</a>
+        <a href="tagihan.html" class="nav-item"><span class="icon">&#128179;</span> Tagihan</a>
+        <a href="catatan.html" class="nav-item"><span class="icon">&#128221;</span> Catatan</a>
+      </nav>
+      <div class="user-box">
+        <span class="uname" id="userName"></span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <div class="mobile-topbar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <span class="brand-m">Manajemen Kantor Hukum</span>
+      </div>
+
+      <div class="page">
+        <h1 class="page-title">Beranda</h1>
+
+        <div class="section-label" style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">Lihat Data</div>
+        <div class="card-grid" style="margin-bottom:28px;">
+          <a href="lihat-data.html" class="card">
+            <div class="card-dot green"></div>
+            <div class="icon">&#128269;</div>
+            <div class="label">Lihat Data</div>
+            <div class="desc">Klien, kasus &amp; jadwal sidang</div>
+          </a>
+        </div>
+
+        <div class="section-label" style="font-size:13px;font-weight:700;color:var(--text-secondary);margin-bottom:12px;">Input Data</div>
+        <div class="card-grid">
+          <a href="klien.html" class="card">
+            <div class="card-dot blue"></div>
+            <div class="icon">&#128100;</div>
+            <div class="label">Data Klien</div>
+            <div class="desc">Tambah klien baru</div>
+          </a>
+          <a href="lawan.html" class="card">
+            <div class="card-dot red"></div>
+            <div class="icon">&#9878;</div>
+            <div class="label">Data Lawan</div>
+            <div class="desc">Tambah data lawan</div>
+          </a>
+          <a href="kasus.html" class="card">
+            <div class="card-dot purple"></div>
+            <div class="icon">&#128220;</div>
+            <div class="label">Data Kasus</div>
+            <div class="desc">Tambah kasus baru</div>
+          </a>
+          <a href="keuangan.html" class="card">
+            <div class="card-dot green"></div>
+            <div class="icon">&#128176;</div>
+            <div class="label">Keuangan</div>
+            <div class="desc">Input transaksi</div>
+          </a>
+          <a href="jadwal.html" class="card">
+            <div class="card-dot orange"></div>
+            <div class="icon">&#128197;</div>
+            <div class="label">Jadwal</div>
+            <div class="desc">Sidang / Konsultasi</div>
+          </a>
+          <a href="dokumen.html" class="card">
+            <div class="card-dot teal"></div>
+            <div class="icon">&#128196;</div>
+            <div class="label">Dokumen</div>
+            <div class="desc">Upload file</div>
+          </a>
+          <a href="tagihan.html" class="card">
+            <div class="card-dot brown"></div>
+            <div class="icon">&#128179;</div>
+            <div class="label">Tagihan</div>
+            <div class="desc">Buat invoice</div>
+          </a>
+          <a href="catatan.html" class="card">
+            <div class="card-dot pink"></div>
+            <div class="icon">&#128221;</div>
+            <div class="label">Catatan</div>
+            <div class="desc">Perkembangan kasus</div>
+          </a>
+        </div>
+
+        <div style="text-align:center;padding:24px 0 8px;color:var(--text-secondary);font-size:12px;">Manajemen Kantor Hukum &copy; 2026</div>
+      </div>
+    </main>
   </div>
 
-<div class="container">
-    <div class="section-title">Lihat Data</div>
-    <div class="grid">
-      <a href="lihat-data.html?v=1" class="card green">
-        <div class="icon">&#128269;</div>
-        <div class="label">Lihat Data</div>
-        <div class="desc">Klien, kasus & jadwal sidang</div>
-      </a>
-    </div>
-
-    <div class="section-title">Input Data</div>
-    <div class="grid">
-      <a href="klien.html?v=2" class="card blue">
-        <div class="icon">&#128100;</div>
-        <div class="label">Data Klien</div>
-        <div class="desc">Tambah klien baru</div>
-      </a>
-      <a href="lawan.html?v=2" class="card red">
-        <div class="icon">&#9878;</div>
-        <div class="label">Data Lawan</div>
-        <div class="desc">Tambah data lawan</div>
-      </a>
-      <a href="kasus.html?v=2" class="card purple">
-        <div class="icon">&#128220;</div>
-        <div class="label">Data Kasus</div>
-        <div class="desc">Tambah kasus baru</div>
-      </a>
-      <a href="keuangan.html?v=2" class="card green">
-        <div class="icon">&#128176;</div>
-        <div class="label">Keuangan</div>
-        <div class="desc">Input transaksi</div>
-      </a>
-      <a href="jadwal.html?v=2" class="card orange">
-        <div class="icon">&#128197;</div>
-        <div class="label">Jadwal</div>
-        <div class="desc">Sidang / Konsultasi</div>
-      </a>
-      <a href="dokumen.html?v=2" class="card teal">
-        <div class="icon">&#128196;</div>
-        <div class="label">Dokumen</div>
-        <div class="desc">Upload file</div>
-      </a>
-      <a href="tagihan.html?v=2" class="card brown">
-        <div class="icon">&#128179;</div>
-        <div class="label">Tagihan</div>
-        <div class="desc">Buat invoice</div>
-      </a>
-<a href="catatan.html?v=2" class="card pink">
-        <div class="icon">&#128221;</div>
-        <div class="label">Catatan</div>
-        <div class="desc">Perkembangan kasus</div>
-      </a>
-    </div>
-  </div>
-
-  <div class="footer">Manajemen Kantor Hukum &copy; 2026</div>
-
+  <script src="app.js"></script>
   <script>
-    if (localStorage.getItem('adminLogin') !== 'true') {
-      window.location.href = 'login.html';
-    }
-    document.getElementById('userName').textContent = localStorage.getItem('adminName') || 'Admin';
-
-    function logout() {
-      localStorage.removeItem('adminLogin');
-      localStorage.removeItem('adminName');
-      localStorage.removeItem('adminRole');
-      window.location.href = 'login.html';
-    }
+    if (localStorage.getItem('adminLogin') !== 'true') { window.location.href = 'login.html'; }
   </script>
 </body>
 </html>
-

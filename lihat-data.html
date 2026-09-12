@@ -4,92 +4,92 @@
   <meta charset="UTF-8">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lihat Data - Manajemen Kantor Hukum</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f4f8; min-height: 100vh; }
-    .header { background: linear-gradient(135deg, #1a5276, #2980b9); color: white; padding: 20px; }
-    .header a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 13px; }
-    .header h1 { font-size: 20px; }
-    .container { max-width: 1000px; margin: 20px auto; padding: 0 16px; }
-    .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 16px; }
-    .sum-card { background: white; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-top: 4px solid #2980b9; }
-    .sum-card .num { font-size: 26px; font-weight: 700; color: #1a5276; }
-    .sum-card .lbl { font-size: 12px; color: #666; margin-top: 4px; }
-    .sum-card.red { border-top-color: #e74c3c; }
-    .sum-card.green { border-top-color: #27ae60; }
-    .panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
-    .tab { padding: 8px 18px; border-radius: 20px; border: 1.5px solid #2980b9; background: white; color: #2980b9; font-weight: 600; font-size: 13px; cursor: pointer; }
-    .tab.active { background: #2980b9; color: white; }
-    .toolbar { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-    .toolbar input, .toolbar select { padding: 8px 12px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 13px; }
-    .toolbar input { flex: 1; min-width: 180px; }
-    .toolbar input:focus, .toolbar select:focus { border-color: #2980b9; outline: none; }
-    .toolbar .tab { background: white; }
-    .toolbar .tab:hover { background: #eaf2f8; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background: #1a5276; color: white; text-align: left; padding: 9px 10px; white-space: nowrap; position: sticky; top: 0; }
-    td { padding: 9px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
-    tr:hover td { background: #eaf2f8; }
-    .table-wrap { overflow-x: auto; max-height: 480px; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .badge.today { background: #fdecea; color: #e74c3c; }
-    .badge.tomorrow { background: #fef9e7; color: #f39c12; }
-    .badge.soon { background: #eafaf1; color: #27ae60; }
-    .badge.status { background: #eef2f7; color: #34495e; }
-    .empty { text-align: center; padding: 40px; color: #888; font-size: 14px; }
-    .loading { text-align: center; padding: 40px; color: #888; }
-    .err { background: #fdecea; color: #e74c3c; padding: 12px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; display: none; }
-    @media (max-width: 500px) { .summary { grid-template-columns: 1fr 1fr; } th { font-size: 12px; } td { font-size: 12px; } }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <a href="index.html">&larr; Kembali</a>
-    <h1>Lihat Data</h1>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-icon">MK</div>
+        <div>
+          <div class="brand-text">Manajemen Kantor Hukum</div>
+          <div class="brand-sub">Sistem Manajemen</div>
+        </div>
+      </div>
+      <nav>
+        <div class="nav-section">Menu</div>
+        <a href="index.html" class="nav-item"><span class="icon">&#127968;</span> Beranda</a>
+        <a href="lihat-data.html" class="nav-item"><span class="icon">&#128269;</span> Lihat Data</a>
+        <div class="nav-section">Input Data</div>
+        <a href="klien.html" class="nav-item"><span class="icon">&#128100;</span> Data Klien</a>
+        <a href="lawan.html" class="nav-item"><span class="icon">&#9878;</span> Data Lawan</a>
+        <a href="kasus.html" class="nav-item"><span class="icon">&#128220;</span> Data Kasus</a>
+        <a href="keuangan.html" class="nav-item"><span class="icon">&#128176;</span> Keuangan</a>
+        <a href="jadwal.html" class="nav-item"><span class="icon">&#128197;</span> Jadwal</a>
+        <a href="dokumen.html" class="nav-item"><span class="icon">&#128196;</span> Dokumen</a>
+        <a href="tagihan.html" class="nav-item"><span class="icon">&#128179;</span> Tagihan</a>
+        <a href="catatan.html" class="nav-item"><span class="icon">&#128221;</span> Catatan</a>
+      </nav>
+      <div class="user-box">
+        <span class="uname" id="userName"></span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+      </div>
+    </aside>
+
+    <div class="overlay" id="overlay"></div>
+
+    <main class="main">
+      <div class="mobile-topbar">
+        <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+        <span class="brand-m">Manajemen Kantor Hukum</span>
+      </div>
+
+      <div class="page">
+        <h1 class="page-title">Lihat Data</h1>
+
+        <div id="errorMsg" class="error-msg"></div>
+
+        <div class="summary">
+          <div class="sum-card"><div class="num" id="sumKlien">-</div><div class="lbl">Total Klien</div></div>
+          <div class="sum-card green"><div class="num" id="sumKasus">-</div><div class="lbl">Total Kasus</div></div>
+          <div class="sum-card orange"><div class="num" id="sumBulan">-</div><div class="lbl">Jadwal Bulan Ini</div></div>
+          <div class="sum-card red"><div class="num" id="sumHari">-</div><div class="lbl">Jadwal Hari Ini</div></div>
+        </div>
+
+        <div class="panel">
+          <div class="tabs">
+            <button class="tab active" data-tab="klien">Data Klien</button>
+            <button class="tab" data-tab="kasus">Data Kasus</button>
+            <button class="tab" data-tab="jadwal">Jadwal</button>
+          </div>
+
+          <div class="toolbar">
+            <input type="text" id="searchBox" placeholder="Cari...">
+            <select id="filterJadwal" style="display:none;">
+              <option value="">Semua tipe</option>
+              <option>Sidang</option>
+              <option>Konsultasi</option>
+              <option>Mediasi</option>
+              <option>Meeting</option>
+              <option>Lainnya</option>
+            </select>
+            <button class="tab" id="btnRefresh">Muat Ulang</button>
+          </div>
+
+          <div id="loadingMsg" class="loading">Memuat data...</div>
+          <div class="table-wrap" id="tableWrap" style="display:none;">
+            <table>
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="emptyMsg" style="display:none;">Tidak ada data.</div>
+        </div>
+      </div>
+    </main>
   </div>
 
-  <div class="container">
-    <div id="errorMsg" class="err"></div>
-
-    <div class="summary">
-      <div class="sum-card"><div class="num" id="sumKlien">-</div><div class="lbl">Total Klien</div></div>
-      <div class="sum-card"><div class="num" id="sumKasus">-</div><div class="lbl">Total Kasus</div></div>
-      <div class="sum-card green"><div class="num" id="sumBulan">-</div><div class="lbl">Jadwal Bulan Ini</div></div>
-      <div class="sum-card red"><div class="num" id="sumHari">-</div><div class="lbl">Jadwal Hari Ini</div></div>
-    </div>
-
-    <div class="panel">
-      <div class="tabs">
-        <button class="tab active" data-tab="klien">Data Klien</button>
-        <button class="tab" data-tab="kasus">Data Kasus</button>
-        <button class="tab" data-tab="jadwal">Jadwal</button>
-      </div>
-
-      <div class="toolbar">
-        <input type="text" id="searchBox" placeholder="Cari...">
-        <select id="filterJadwal" style="display:none;">
-          <option value="">Semua tipe</option>
-          <option>Sidang</option>
-          <option>Konsultasi</option>
-          <option>Mediasi</option>
-          <option>Meeting</option>
-          <option>Lainnya</option>
-        </select>
-        <button class="tab" id="btnRefresh" style="border-color:#27ae60;color:#27ae60;">Muat Ulang</button>
-      </div>
-
-      <div id="loadingMsg" class="loading">Memuat data...</div>
-      <div class="table-wrap" id="tableWrap" style="display:none;">
-        <table>
-          <thead id="tableHead"></thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
-      <div class="empty" id="emptyMsg" style="display:none;">Tidak ada data.</div>
-    </div>
-  </div>
-
+  <script src="app.js"></script>
   <script>
     if (localStorage.getItem('adminLogin') !== 'true') { window.location.href = 'index.html'; }
     var WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbxAGAUbsmR07AIOlMph13H8AlVoFQJuyCVTasH47uICsP59eP-7AfU_f-q2S3QcSQgW1g/exec';
@@ -187,8 +187,8 @@
 
     function render() {
       document.getElementById('loadingMsg').style.display = 'none';
-      var sumKlien = document.getElementById('sumKlien');
-      var sumKasus = document.getElementById('sumKasus');
+      document.getElementById('sumKlien').textContent = state.klien.length;
+      document.getElementById('sumKasus').textContent = state.kasus.length;
       var now = new Date();
       var bulanIni = now.getMonth();
       var tahunIni = now.getFullYear();
@@ -199,8 +199,6 @@
       var jadwalHari = state.jadwal.filter(function(j) {
         return formatTanggalBeda(j.Tanggal) === 'today';
       }).length;
-      sumKlien.textContent = state.klien.length;
-      sumKasus.textContent = state.kasus.length;
       document.getElementById('sumBulan').textContent = jadwalBulan;
       document.getElementById('sumHari').textContent = jadwalHari;
 
@@ -208,11 +206,9 @@
       document.getElementById('searchBox').placeholder = state.tab === 'jadwal' ? 'Cari klien, kasus, lokasi...' : 'Cari...';
 
       var rows;
-      if (state.tab === 'klien') {
-        rows = state.klien;
-      } else if (state.tab === 'kasus') {
-        rows = state.kasus;
-      } else {
+      if (state.tab === 'klien') { rows = state.klien; }
+      else if (state.tab === 'kasus') { rows = state.kasus; }
+      else {
         rows = state.jadwal.filter(function(j) {
           return !state.filterJadwal || j.TipeJadwal === state.filterJadwal;
         });
