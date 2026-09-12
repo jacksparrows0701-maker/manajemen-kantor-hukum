@@ -14,7 +14,6 @@ var CONFIG = {
     DOKUMEN: 'Dokumen',
     TAGIHAN: 'Tagihan',
     CATATAN: 'Catatan Kasus',
-    NOMOR_SURAT: 'Nomor Surat',
     DASHBOARD: 'Dashboard',
     ADMIN: 'Admin'
   },
@@ -40,7 +39,6 @@ var KANTOR = {
   email: 'ihsanfauzia@gmail.com'
 };
 
-var BULAN_ROMAWI = ['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
 var NAMA_BULAN = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
 // ============================================================
@@ -93,16 +91,6 @@ function migrateHeaders() {
     lawan.getRange(1, 1, 1, lawan.getLastColumn()).setFontWeight('bold').setBackground('#1a5276').setFontColor('white');
   }
 
-  // --- Buat sheet Nomor Surat jika belum ada ---
-  var nomorSurat = ss.getSheetByName(CONFIG.SHEETS.NOMOR_SURAT);
-  if (!nomorSurat) {
-    nomorSurat = ss.insertSheet(CONFIG.SHEETS.NOMOR_SURAT);
-    var nsHeaders = ['ID','Tipe Surat','Kode Surat','Kategori','Nomor Urut','Tahun','Bulan','Nomor Lengkap','Tanggal Generate'];
-    nomorSurat.getRange(1, 1, 1, nsHeaders.length).setValues([nsHeaders]);
-    nomorSurat.getRange(1, 1, 1, nsHeaders.length).setFontWeight('bold').setBackground('#1a5276').setFontColor('white');
-    nomorSurat.setFrozenRows(1);
-  }
-
   SpreadsheetApp.getUi().alert('Header berhasil di-update!\n\nSilakan cek sheet Data Klien dan Data Lawan.');
 }
 
@@ -120,8 +108,7 @@ function setupSemuaSheet() {
     { name: CONFIG.SHEETS.JADWAL, headers: ['ID','ID Kasus','Tipe Jadwal','Tanggal','Waktu','Lokasi','Status','Keterangan'] },
     { name: CONFIG.SHEETS.DOKUMEN, headers: ['ID','ID Kasus','Nama Dokumen','Tipe Dokumen','Link Drive','Tgl Upload','Keterangan'] },
     { name: CONFIG.SHEETS.TAGIHAN, headers: ['ID','ID Kasus','No Invoice','Item','Jumlah','Status Bayar','Jatuh Tempo','Tgl Bayar','Keterangan'] },
-    { name: CONFIG.SHEETS.CATATAN, headers: ['ID','ID Kasus','Tanggal','Judul','Isi Catatan','Tipe','Oleh'] },
-    { name: CONFIG.SHEETS.NOMOR_SURAT, headers: ['ID','Tipe Surat','Kode Surat','Kategori','Nomor Urut','Tahun','Bulan','Nomor Lengkap','Tanggal Generate'] }
+    { name: CONFIG.SHEETS.CATATAN, headers: ['ID','ID Kasus','Tanggal','Judul','Isi Catatan','Tipe','Oleh'] }
   ];
 
   for (var s = 0; s < sheets.length; s++) {
@@ -177,411 +164,9 @@ function hitungUsia(tglLahir) {
   return usia + ' tahun';
 }
 
-// ============================================================
-// 4. FORMAT BIN/BINTI
-// ============================================================
-function formatBinBinti(jenisKelamin, namaAyah) {
-  if (!namaAyah) return '';
-  if (jenisKelamin === 'Laki-laki') return 'bin ' + namaAyah;
-  if (jenisKelamin === 'Perempuan') return 'binti ' + namaAyah;
-  return '';
-}
 
 // ============================================================
-// 5. GET NOMOR SURAT
-// ============================================================
-function getNomorSurat(tipeSurat, kategori) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(CONFIG.SHEETS.NOMOR_SURAT);
-  if (!sheet) {
-    setupSemuaSheet();
-    sheet = ss.getSheetByName(CONFIG.SHEETS.NOMOR_SURAT);
-  }
-
-  var now = new Date();
-  var bulan = BULAN_ROMAWI[now.getMonth()];
-  var tahun = now.getFullYear();
-  var kodeSurat = tipeSurat === 'Surat Kuasa' ? 'SK' : tipeSurat === 'Domisili' ? 'SD' : 'SE';
-
-  var nomorUrut = 1;
-  if (sheet.getLastRow() > 1) {
-    var data = sheet.getDataRange().getValues();
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][1] === tipeSurat && data[i][3] === kategori && data[i][6] === bulan && data[i][5] === tahun) {
-        nomorUrut = data[i][4] + 1;
-      }
-    }
-  }
-
-  var nomorFormatted = nomorUrut < 10 ? '0' + nomorUrut : '' + nomorUrut;
-  var nomorLengkap = nomorFormatted + '/' + kodeSurat + '/' + kategori + '/MIFLAW/' + bulan + '/' + tahun;
-
-  var id = getLatestId(CONFIG.SHEETS.NOMOR_SURAT, 'NS-');
-  sheet.appendRow([
-    id, tipeSurat, kodeSurat, kategori, nomorUrut, tahun, bulan, nomorLengkap, now
-  ]);
-
-  return nomorLengkap;
-}
-
-// ============================================================
-// 6. GET DATA KLIEN
-// ============================================================
-function getDataKlien(idKlien) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(CONFIG.SHEETS.KLIEN);
-  if (!sheet) return null;
-  var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] === idKlien) {
-      return {
-        nama: data[i][1],
-        namaAyah: data[i][2],
-        jenisKelamin: data[i][3],
-        ktp: data[i][4],
-        hp: data[i][5],
-        email: data[i][6],
-        tempatLahir: data[i][7],
-        tglLahir: data[i][8],
-        usia: data[i][9],
-        pekerjaan: data[i][10],
-        alamat: data[i][11],
-        statusKawin: data[i][12],
-        agama: data[i][13],
-        pendidikan: data[i][14]
-      };
-    }
-  }
-  return null;
-}
-
-// ============================================================
-// 7. GET DATA LAWAN
-// ============================================================
-function getDataLawan(idLawan) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(CONFIG.SHEETS.LAWAN);
-  if (!sheet) return null;
-  var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] === idLawan) {
-      return {
-        nama: data[i][2],
-        namaAyah: data[i][3],
-        jenisKelamin: data[i][4],
-        ktp: data[i][5],
-        hp: data[i][6],
-        tempatLahir: data[i][7],
-        tglLahir: data[i][8],
-        usia: data[i][9],
-        pekerjaan: data[i][10],
-        alamat: data[i][11],
-        agama: data[i][13]
-      };
-    }
-  }
-  return null;
-}
-
-// ============================================================
-// 8. GET DATA KASUS
-// ============================================================
-function getDataKasus(idKasus) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(CONFIG.SHEETS.KASUS);
-  if (!sheet) return null;
-  var data = sheet.getDataRange().getValues();
-  for (var i = 1; i < data.length; i++) {
-    if (data[i][0] === idKasus) {
-      return {
-        idKlien: data[i][1],
-        idLawan: data[i][2],
-        tipeKasus: data[i][3],
-        statusKasus: data[i][4],
-        noPerkara: data[i][6],
-        pengadilan: data[i][9]
-      };
-    }
-  }
-  return null;
-}
-
-// ============================================================
-// 9. GENERATE SURAT KUASA (Google Docs - bisa diedit)
-// ============================================================
-function generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan) {
-  var klien = getDataKlien(idKlien);
-  var lawan = getDataLawan(idLawan);
-
-  if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
-  if (!lawan) return { success: false, message: 'Lawan tidak ditemukan' };
-
-  var kategori = tipeKasus === 'Cerai Gugat' ? 'PDTG' : 'PDTT';
-  var nomorSurat = getNomorSurat('Surat Kuasa', kategori);
-  var binBintiKlien = formatBinBinti(klien.jenisKelamin, klien.namaAyah);
-  var binBintiLawan = formatBinBinti(lawan.jenisKelamin, lawan.namaAyah);
-  var pihakLawan = tipeKasus === 'Cerai Gugat' ? 'Tergugat' : 'Termohon';
-  var pihakKlien = tipeKasus === 'Cerai Gugat' ? 'Penggugat' : 'Pemohon';
-  var tglLahirKlien = klien.tempatLahir + ', ' + Utilities.formatDate(new Date(klien.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
-  var tglLahirLawan = lawan.tempatLahir + ', ' + Utilities.formatDate(new Date(lawan.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
-  var tanggalSurat = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd MMMM yyyy');
-
-  var doc = DocumentApp.create('Surat Kuasa - ' + klien.nama);
-  var body = doc.getBody();
-  body.clear();
-
-  var style = {};
-  style[DocumentApp.Attribute.FONT_FAMILY] = 'Times New Roman';
-  style[DocumentApp.Attribute.FONT_SIZE] = 12;
-  style[DocumentApp.Attribute.LINE_SPACING] = 1.5;
-
-  var title = body.appendParagraph('SURAT KUASA');
-  title.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  title.setBold(true);
-  title.setFontSize(14);
-  title.setSpacingAfter(6);
-
-  var nomor = body.appendParagraph('Nomor : ' + nomorSurat);
-  nomor.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  nomor.setSpacingAfter(12);
-
-  body.appendParagraph('Yang bertanda tangan dibawah ini:').setSpacingAfter(6);
-
-  var pemberi = body.appendParagraph(
-    klien.nama + ' ' + binBintiKlien + ', NIK ' + klien.ktp +
-    ', Tempat/Tgl Lahir di ' + tglLahirKlien + ' (umur ' + klien.usia + ')' +
-    ', Agama ' + klien.agama + ', Pendidikan ' + klien.pendidikan +
-    ', Pekerjaan ' + klien.pekerjaan + ' Alamat ' + klien.alamat +
-    '. Email: ' + klien.email
-  );
-  pemberi.setSpacingAfter(6);
-
-  body.appendParagraph('Selanjutnya disebut sebagai PEMBERI KUASA.').setSpacingAfter(12);
-
-  body.appendParagraph('Dengan ini menerangkan memberi kuasa kepada:').setSpacingAfter(6);
-
-  var penerima = body.appendParagraph(
-    KANTOR.pengacara1 + ', & ' + KANTOR.pengacara2 + '\n' +
-    'Para Advokat, Pengacara dan Penasihat Hukum yang berkantor di Kantor Advokat Pengacara dan Penasihat Hukum ' +
-    KANTOR.nama + ', yang berkantor di ' + KANTOR.alamat + ', Kontak ' + KANTOR.kontak +
-    ', Web. ' + KANTOR.web + ' Email: ' + KANTOR.email
-  );
-  penerima.setSpacingAfter(6);
-
-  body.appendParagraph('Selanjutnya disebut PENERIMA KUASA.').setSpacingAfter(12);
-
-  body.appendParagraph('KHUSUS').setBold(true).setSpacingAfter(6);
-
-  var isiKuasa = body.appendParagraph(
-    'Untuk mewakili kepentingan Pemberi Kuasa/' + pihakKlien + ' dapat bertindak bersama-sama ataupun sendiri-sendiri ' +
-    'untuk mengajukan Perkara ' + tipeKasus + ' di ' + (pengadilan || 'Pengadilan Agama ...') + ' terhadap:'
-  );
-  isiKuasa.setSpacingAfter(6);
-
-  var lawanText = body.appendParagraph(
-    lawan.nama + ' ' + binBintiLawan + ', NIK. ' + lawan.ktp +
-    ', Tempat/Tgl Lahir di ' + tglLahirLawan + ' (umur ' + lawan.usia + ')' +
-    ', Agama ' + lawan.agama + ', Pendidikan ' + (lawan.pendidikan || '-') +
-    ', Pekerjaan ' + (lawan.pekerjaan || '-') + ', Alamat ' + lawan.alamat +
-    '. Selanjutnya disebut sebagai ' + pihakLawan + '.'
-  );
-  lawanText.setSpacingAfter(12);
-
-  var hakKuasa = body.appendParagraph(
-    'Untuk yang diberi kuasa berhak mewakili Pemberi Kuasa untuk membuat, menandatangani, serta mendaftarkan ' +
-    'perkara ' + tipeKasus + ' beserta tuntutan berupa nafkah ataupun terhutang terhadap ' + pihakLawan + ' melalui sistem manual ataupun sistem ecourt Mahkamah Agung. ' +
-    'Hadir setiap acara persidangan, memperbaiki gugatan beserta petitumnya, membuat replik, menerima duplik ' +
-    'mengajukan bukti serta saksi dan menolak serta mengajukan keberatan atas bukti yang dihadirkan ' + pihakLawan + ' dalam persidangan ' +
-    'baik itu tertulis maupun saksi, mengajukan kesimpulan, mengajukan upaya hukum yang dianggap penting dan perlu serta berguna ' +
-    'untuk kepentingan perkara ini, sehubungan menjalankan perkara ini, dikuasakan pula mencabut gugatan, ' +
-    'dikuasakan untuk mengambil dan menambah panjar perkara dan mengambil Putusan/menerima Akta Cerai. ' +
-    'Melakukan teguran atau upaya perdamaian dengan pihak ' + pihakLawan + ' dan upaya-upaya lainnya yang berguna ' +
-    'baik secara Litigasi maupun Non Litigasi untuk kepentingan pemberi kuasa. ' +
-    'Kuasa ini diberikan dengan Hak Subsitusi dan Hak Retensi.'
-  );
-  hakKuasa.setSpacingAfter(24);
-
-  var ttdSection = body.appendParagraph('');
-  ttdSection.appendText('\n\n\n');
-  ttdSection.appendText('MUHAMMAD IHSAN FAUZI, S.H., M.H');
-  ttdSection.setSpacingAfter(6);
-
-  var ttdPemberi = body.appendParagraph('');
-  ttdPemberi.appendText('Bandung, ' + tanggalSurat);
-  ttdPemberi.appendText('\n\n');
-  ttdPemberi.appendText('PENERIMA KUASA');
-  ttdPemberi.appendText('\n\n');
-  ttdPemberi.appendText('PEMBERI KUASA');
-  ttdPemberi.appendText('\n\n\n\n');
-  ttdPemberi.appendText(klien.nama.toUpperCase());
-  ttdPemberi.setSpacingAfter(6);
-
-  var ttd2 = body.appendParagraph('');
-  ttd2.appendText('RUDI KURNIAWAN, S.H.');
-  ttd2.setSpacingAfter(24);
-
-  // E-Court Section
-  body.appendParagraph('PERSETUJUAN PIHAK').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
-  body.appendParagraph('BERACARA SECARA ELEKTRONIK (E-COURT)').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
-  body.appendParagraph('DI ' + (pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
-
-  body.appendParagraph('Saya yang bertanda-tangan dibawah ini:').setSpacingAfter(6);
-
-  body.appendParagraph(
-    klien.nama + ' ' + binBintiKlien + ', NIK ' + klien.ktp +
-    ', Tempat/Tgl Lahir di ' + tglLahirKlien + ' (umur ' + klien.usia + ')' +
-    ', Agama ' + klien.agama + ', Pendidikan ' + klien.pendidikan +
-    ', Pekerjaan ' + klien.pekerjaan + ' Alamat ' + klien.alamat +
-    '. Email: ' + klien.email
-  ).setSpacingAfter(6);
-
-  body.appendParagraph(
-    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (pengadilan || 'Pengadilan Agama') + '. ' +
-    'Berdasarkan Peraturan Mahkamah Agung Republik Indonesia Nomor 3 Tahun 2018, Tentang Administrasi Perkara di Pengadilan Secara Elektronik, para pihak tersebut diatas menyatakan:'
-  ).setSpacingAfter(6);
-
-  body.appendParagraph('Mengikuti Proses Acara Persidangan secara Elektronik, yang dimulai dari acara Mediasi, Jawaban, Replik, Duplik dan Kesimpulan;').setSpacingAfter(3);
-  body.appendParagraph('Melaksanakan sidang pembuktian sesuai dengan hukum acara yang berlaku;').setSpacingAfter(3);
-  body.appendParagraph('Menerima panggilan sidang dan pemberitahuan putusan perkara perdata/permohonan secara elektronik;').setSpacingAfter(6);
-
-  body.appendParagraph(
-    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (pengadilan || 'Pengadilan Agama') +
-    ' yang harus dipenuhi oleh para pihak dihadapan Panitera Pengadilan tersebut.'
-  ).setSpacingAfter(12);
-
-  body.appendParagraph('Bandung, ' + tanggalSurat).setSpacingAfter(6);
-  body.appendParagraph('Hormat Saya,').setSpacingAfter(30);
-  body.appendParagraph(klien.nama.toUpperCase()).setBold(true);
-
-  doc.saveAndClose();
-
-  var link = 'https://docs.google.com/document/d/' + doc.getId() + '/edit';
-  return { success: true, link: link, message: 'Surat Kuasa berhasil digenerate', nomor: nomorSurat };
-}
-
-// ============================================================
-// 10. GENERATE SURAT DOMISILI (Google Docs - bisa diedit)
-// ============================================================
-function generateDomisili(idKlien, pengadilan) {
-  var klien = getDataKlien(idKlien);
-  if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
-
-  var binBintiKlien = formatBinBinti(klien.jenisKelamin, klien.namaAyah);
-  var tglLahirKlien = klien.tempatLahir + ', ' + Utilities.formatDate(new Date(klien.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
-  var tanggalSurat = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd MMMM yyyy');
-  var nomorSurat = getNomorSurat('Domisili', 'SD');
-
-  var doc = DocumentApp.create('Surat Domisili - ' + klien.nama);
-  var body = doc.getBody();
-  body.clear();
-
-  var title = body.appendParagraph('SURAT PERNYATAAN DOMISILI TEMPAT TINGGAL');
-  title.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  title.setBold(true);
-  title.setFontSize(14);
-  title.setSpacingAfter(12);
-
-  body.appendParagraph('Saya yang bertanda tangan di bawah ini:').setSpacingAfter(6);
-
-  body.appendParagraph(
-    klien.nama + ' ' + binBintiKlien + ', NIK ' + klien.ktp +
-    ', Tempat/Tgl Lahir di ' + tglLahirKlien + ' (umur ' + klien.usia + ')' +
-    ', Agama ' + klien.agama + ', Pendidikan ' + klien.pendidikan +
-    ', Pekerjaan ' + klien.pekerjaan + ' Alamat ' + klien.alamat +
-    '. Email: ' + klien.email
-  ).setSpacingAfter(12);
-
-  body.appendParagraph(
-    'Demikian Surat Pernyataan ini saya buat untuk keperluan pengajuan gugatan di ' + (pengadilan || 'Pengadilan Agama Bandung') +
-    '. Apabila di kemudian hari terbukti bahwa Surat Pernyataan ini tidak benar, maka saya bersedia bertanggung jawab sesuai peraturan perundang-undangan yang berlaku.'
-  ).setSpacingAfter(24);
-
-  body.appendParagraph('Bandung, ' + tanggalSurat).setSpacingAfter(6);
-  body.appendParagraph('Yang Membuat Pernyataan').setSpacingAfter(40);
-  body.appendParagraph(klien.nama.toUpperCase()).setBold(true);
-
-  doc.saveAndClose();
-
-  var link = 'https://docs.google.com/document/d/' + doc.getId() + '/edit';
-  return { success: true, link: link, message: 'Surat Domisili berhasil digenerate', nomor: nomorSurat };
-}
-
-// ============================================================
-// 11. GENERATE SURAT E-COURT (Google Docs - bisa diedit)
-// ============================================================
-function generateSuratECourt(idKlien, pengadilan) {
-  var klien = getDataKlien(idKlien);
-  if (!klien) return { success: false, message: 'Klien tidak ditemukan' };
-
-  var binBintiKlien = formatBinBinti(klien.jenisKelamin, klien.namaAyah);
-  var tglLahirKlien = klien.tempatLahir + ', ' + Utilities.formatDate(new Date(klien.tglLahir), 'Asia/Jakarta', 'dd/MM/yyyy');
-  var tanggalSurat = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'dd MMMM yyyy');
-  var nomorSurat = getNomorSurat('E-Court', 'SE');
-
-  var doc = DocumentApp.create('Surat E-Court - ' + klien.nama);
-  var body = doc.getBody();
-  body.clear();
-
-  var title = body.appendParagraph('PERSETUJUAN PIHAK');
-  title.setAlignment(DocumentApp.HorizontalAlignment.CENTER);
-  title.setBold(true);
-  title.setFontSize(14);
-  title.setSpacingAfter(2);
-
-  body.appendParagraph('BERACARA SECARA ELEKTRONIK (E-COURT)').setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(2);
-  body.appendParagraph('DI ' + (pengadilan || 'PENGADILAN AGAMA ...').toUpperCase()).setBold(true).setAlignment(DocumentApp.HorizontalAlignment.CENTER).setSpacingAfter(12);
-
-  body.appendParagraph('Saya yang bertanda-tangan dibawah ini:').setSpacingAfter(6);
-
-  body.appendParagraph(
-    klien.nama + ' ' + binBintiKlien + ', NIK ' + klien.ktp +
-    ', Tempat/Tgl Lahir di ' + tglLahirKlien + ' (umur ' + klien.usia + ')' +
-    ', Agama ' + klien.agama + ', Pendidikan ' + klien.pendidikan +
-    ', Pekerjaan ' + klien.pekerjaan + ' Alamat ' + klien.alamat +
-    '. Email: ' + klien.email
-  ).setSpacingAfter(6);
-
-  body.appendParagraph(
-    'Selanjutnya disebut Penggugat/Pemohon sebagai Pengguna Terdaftar perkara perdata/permohonan yang terdaftar pada Aplikasi E-Court Sistem Informasi Pengadilan pada ' + (pengadilan || 'Pengadilan Agama') + '. ' +
-    'Berdasarkan Peraturan Mahkamah Agung Republik Indonesia Nomor 3 Tahun 2018, Tentang Administrasi Perkara di Pengadilan Secara Elektronik, para pihak tersebut diatas menyatakan:'
-  ).setSpacingAfter(6);
-
-  body.appendParagraph('Mengikuti Proses Acara Persidangan secara Elektronik, yang dimulai dari acara Mediasi, Jawaban, Replik, Duplik dan Kesimpulan;').setSpacingAfter(3);
-  body.appendParagraph('Melaksanakan sidang pembuktian sesuai dengan hukum acara yang berlaku;').setSpacingAfter(3);
-  body.appendParagraph('Menerima panggilan sidang dan pemberitahuan putusan perkara perdata/permohonan secara elektronik;').setSpacingAfter(6);
-
-  body.appendParagraph(
-    'Demikian surat persetujuan ini dibuat untuk Beracara Secara Elektronik di ' + (pengadilan || 'Pengadilan Agama') +
-    ' yang harus dipenuhi oleh para pihak dihadapan Panitera Pengadilan tersebut.'
-  ).setSpacingAfter(24);
-
-  body.appendParagraph('Bandung, ' + tanggalSurat).setSpacingAfter(6);
-  body.appendParagraph('Hormat Saya,').setSpacingAfter(40);
-  body.appendParagraph(klien.nama.toUpperCase()).setBold(true);
-
-  doc.saveAndClose();
-
-  var link = 'https://docs.google.com/document/d/' + doc.getId() + '/edit';
-  return { success: true, link: link, message: 'Surat E-Court berhasil digenerate', nomor: nomorSurat };
-}
-
-// ============================================================
-// 12. GENERATE SEMUA SURAT SEKALIGUS
-// ============================================================
-function generateSemuaSurat(idKlien, idLawan, tipeKasus, pengadilan) {
-  var results = {};
-
-  var suratKuasa = generateSuratKuasa(idKlien, idLawan, tipeKasus, pengadilan);
-  results.suratKuasa = suratKuasa;
-
-  var domisili = generateDomisili(idKlien, pengadilan);
-  results.domisili = domisili;
-
-  return results;
-}
-
-// ============================================================
-// 13. SETUP DASHBOARD
+// 4. SETUP DASHBOARD
 // ============================================================
 function setupDashboard() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -738,7 +323,7 @@ function setupDashboard() {
 }
 
 // ============================================================
-// 14. AUTO-UPDATE SISA TAGIHAN
+// 5. AUTO-UPDATE SISA TAGIHAN
 // ============================================================
 function updateSisaTagihan() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -752,7 +337,7 @@ function updateSisaTagihan() {
 }
 
 // ============================================================
-// 15. NOTIFIKASI JADWAL
+// 6. NOTIFIKASI JADWAL
 // ============================================================
 function cekJadwalMendekat() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -787,7 +372,7 @@ function cekJadwalMendekat() {
 }
 
 // ============================================================
-// 16. NOTIFIKASI TAGIHAN JATUH TEMPO
+// 7. NOTIFIKASI TAGIHAN JATUH TEMPO
 // ============================================================
 function cekTagihanJatuhTempo() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -818,7 +403,7 @@ function cekTagihanJatuhTempo() {
 }
 
 // ============================================================
-// 17. LAPORAN BULANAN
+// 8. LAPORAN BULANAN
 // ============================================================
 function buatLaporanBulanan() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -867,7 +452,7 @@ function buatLaporanBulanan() {
 }
 
 // ============================================================
-// 18. SETUP ADMIN SHEET
+// 9. SETUP ADMIN SHEET
 // ============================================================
 function setupAdminSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -887,7 +472,7 @@ function setupAdminSheet() {
 }
 
 // ============================================================
-// 19. VERIFY LOGIN
+// 10. VERIFY LOGIN
 // ============================================================
 function verifyLogin(username, password) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -913,7 +498,7 @@ function verifyLogin(username, password) {
 }
 
 // ============================================================
-// 19b. CHANGE PASSWORD
+// 11. CHANGE PASSWORD
 // ============================================================
 function changePassword(username, oldPassword, newPassword) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -930,7 +515,7 @@ function changePassword(username, oldPassword, newPassword) {
 }
 
 // ============================================================
-// 20. WEB APP - doGet (via URL params - no CORS)
+// 12. WEB APP - doGet (via URL params - no CORS)
 // ============================================================
 function doGet(e) {
   var action = e.parameter.action;
@@ -941,6 +526,9 @@ function doGet(e) {
     switch (action) {
       case 'login':
         result = verifyLogin(e.parameter.username, e.parameter.password);
+        break;
+      case 'changePassword':
+        result = changePassword(e.parameter.username, e.parameter.oldPassword, e.parameter.newPassword);
         break;
       case 'addKlien':
         var id = getLatestId(CONFIG.SHEETS.KLIEN, CONFIG.PREFIX.KLIEN);
@@ -1016,7 +604,7 @@ function doGet(e) {
 }
 
 // ============================================================
-// 21. WEB APP - doPost
+// 13. WEB APP - doPost
 // ============================================================
 function doPost(e) {
   try {
@@ -1032,33 +620,6 @@ function doPost(e) {
 
       case 'changePassword':
         result = changePassword(data.username, data.oldPassword, data.newPassword);
-        break;
-
-      case 'generateSuratKuasa':
-        var r = generateSuratKuasa(data.idKlien, data.idLawan, data.tipeKasus, data.pengadilan);
-        result = r;
-        break;
-
-      case 'generateDomisili':
-        var r = generateDomisili(data.idKlien, data.pengadilan);
-        result = r;
-        break;
-
-      case 'generateSuratECourt':
-        var r = generateSuratECourt(data.idKlien, data.pengadilan);
-        result = r;
-        break;
-
-      case 'generateSemuaSurat':
-        var r = generateSemuaSurat(data.idKlien, data.idLawan, data.tipeKasus, data.pengadilan);
-        result.results = r;
-        result.message = 'Semua surat berhasil digenerate';
-        break;
-
-      case 'generateInvoice':
-        var r = generateInvoicePDF(data.idTagihan);
-        result.link = r;
-        result.message = 'Invoice berhasil digenerate';
         break;
 
       case 'addKlien':
@@ -1178,7 +739,7 @@ function doPost(e) {
 }
 
 // ============================================================
-// 19. MENU CUSTOM
+// 14. MENU CUSTOM
 // ============================================================
 function onOpen() {
   var ui = SpreadsheetApp.getUi();
@@ -1193,48 +754,12 @@ function onOpen() {
     .addItem('Cek Tagihan Jatuh Tempo', 'cekTagihanJatuhTempo')
     .addItem('Buat Laporan Bulanan', 'buatLaporanBulanan')
     .addSeparator()
-    .addItem('Generate Semua Surat (pilih ID)', 'generateSemuaSuratFromSheet')
-    .addItem('Generate Invoice (pilih ID)', 'generateInvoiceFromSheet')
-    .addSeparator()
     .addItem('Lihat Ringkasan', 'lihatRingkasan')
     .addToUi();
 }
 
 // ============================================================
-// 20. GENERATE DARI MENU SPREADSHEET
-// ============================================================
-function generateSemuaSuratFromSheet() {
-  var ui = SpreadsheetApp.getUi();
-  var idKlien = ui.prompt('Generate Semua Surat', 'Masukkan ID Klien (KL-001):', ui.ButtonSet.OK_CANCEL);
-  if (idKlien.getSelectedButton() !== ui.Button.OK) return;
-
-  var idLawan = ui.prompt('Generate Semua Surat', 'Masukkan ID Lawan (LW-001):', ui.ButtonSet.OK_CANCEL);
-  if (idLawan.getSelectedButton() !== ui.Button.OK) return;
-
-  var idKasus = ui.prompt('Generate Semua Surat', 'Masukkan ID Kasus (KKS-001):', ui.ButtonSet.OK_CANCEL);
-  if (idKasus.getSelectedButton() !== ui.Button.OK) return;
-
-  var results = generateSemuaSurat(idKlien.getResponseText(), idLawan.getResponseText(), idKasus.getResponseText());
-
-  var msg = 'SURAT BERHASIL DIGENERATE!\n\n';
-  if (results.suratKuasa.success) msg += 'Surat Kuasa: ' + results.suratKuasa.link + '\n';
-  if (results.domisili.success) msg += 'Surat Domisili: ' + results.domisili.link + '\n';
-  if (results.eCourt.success) msg += 'Surat E-Court: ' + results.eCourt.link + '\n';
-
-  ui.alert('Selesai!', msg, ui.ButtonSet.OK);
-}
-
-function generateInvoiceFromSheet() {
-  var ui = SpreadsheetApp.getUi();
-  var result = ui.prompt('Generate Invoice', 'Masukkan ID Tagihan (TG-001):', ui.ButtonSet.OK_CANCEL);
-  if (result.getSelectedButton() === ui.Button.OK) {
-    var link = generateInvoicePDF(result.getResponseText());
-    ui.alert('Invoice selesai!', 'Link: ' + link, ui.ButtonSet.OK);
-  }
-}
-
-// ============================================================
-// 21. RINGKASAN CEPAT
+// 15. RINGKASAN CEPAT
 // ============================================================
 function lihatRingkasan() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1290,7 +815,7 @@ function lihatRingkasan() {
 }
 
 // ============================================================
-// 22. NOTIFIKASI WhatsApp (Fonnte API)
+// 16. NOTIFIKASI WhatsApp (Fonnte API)
 // ============================================================
 // Cara setup:
 // 1. Buka fonnte.com → daftar → dapat API Key
@@ -1334,7 +859,7 @@ function formatRupiah(angka) {
 }
 
 // ============================================================
-// 23. CEK JADWAL & KIRIM NOTIFIKASI (Jalankan otomatis setiap hari)
+// 17. CEK JADWAL & KIRIM NOTIFIKASI (Jalankan otomatis setiap hari)
 // ============================================================
 // Cara setup:
 // 1. Jalankan function `setupTriggerNotif()` sekali
@@ -1432,7 +957,7 @@ function cekJadwalDanKirimNotif() {
 }
 
 // ============================================================
-// 24. SETUP TRIGGER OTOMATIS (Jalankan sekali saja)
+// 18. SETUP TRIGGER OTOMATIS (Jalankan sekali saja)
 // ============================================================
 function setupTriggerNotif() {
   // Hapus trigger lama
@@ -1454,7 +979,7 @@ function setupTriggerNotif() {
 }
 
 // ============================================================
-// 25. TEST NOTIFIKASI (Jalankan untuk test)
+// 19. TEST NOTIFIKASI (Jalankan untuk test)
 // ============================================================
 function testNotifWhatsApp() {
   var pesan = '✅ *TEST NOTIFIKASI*\n\n';
