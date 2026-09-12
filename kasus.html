@@ -50,17 +50,17 @@
       <form id="formKasus">
         <div class="section-label">Data Terkait</div>
         <div class="row">
-          <div class="form-group">
+          <div class="form-group" id="groupKlien">
             <label>ID Klien <span class="req">*</span></label>
             <div class="ac-wrap">
               <input type="text" name="idKlien" id="idKlien" placeholder="Klik untuk pilih..." required autocomplete="off">
               <div class="ac-list" id="acIdKlien"></div>
             </div>
           </div>
-          <div class="form-group">
-            <label>ID Lawan <span class="req">*</span></label>
+          <div class="form-group" id="groupLawan">
+            <label>ID Lawan <span class="req">(opsional)</span></label>
             <div class="ac-wrap">
-              <input type="text" name="idLawan" id="idLawan" placeholder="Klik untuk pilih..." required autocomplete="off">
+              <input type="text" name="idLawan" id="idLawan" placeholder="Kosongkan jika permohonan (tidak ada lawan)" autocomplete="off">
               <div class="ac-list" id="acIdLawan"></div>
             </div>
           </div>
@@ -198,8 +198,8 @@
       var form = e.target;
       var data = {
         action: 'addKasus',
-        idKlien: form.idKlien.value,
-        idLawan: form.idLawan.value,
+idKlien: form.idKlien.value,
+        idLawan: form.idLawan.value || '-',
         tipeKasus: form.tipeKasus.value,
         statusKasus: form.statusKasus.value,
         tglDaftar: form.tglDaftar.value,
@@ -269,6 +269,19 @@
     }
     initAc('idKlien', 'acIdKlien', 'Data Klien', 'ID', 'Nama');
     initAc('idLawan', 'acIdLawan', 'Data Lawan', 'ID', 'Nama');
+
+    var TANPA_LAWAN = ['Waris', 'Isbat Nikah'];
+    function updateLawanField() {
+      var tipe = document.getElementById('tipeKasus').value;
+      var tanpaLawan = TANPA_LAWAN.indexOf(tipe) > -1;
+      document.getElementById('groupLawan').style.display = tanpaLawan ? 'none' : 'block';
+      document.getElementById('groupKlien').style.gridColumn = tanpaLawan ? '1 / -1' : '';
+      var inputLawan = document.getElementById('idLawan');
+      if (tanpaLawan) { inputLawan.value = '-'; }
+      else if (inputLawan.value === '-') { inputLawan.value = ''; }
+    }
+    document.getElementById('tipeKasus').addEventListener('change', updateLawanField);
+    updateLawanField();
   </script>
 </body>
 </html>
