@@ -579,6 +579,32 @@ function doGet(e) {
         ss.getSheetByName(CONFIG.SHEETS.CATATAN).appendRow([id, d.idKasus, d.tanggal, d.judul, d.isi, d.tipe, d.oleh]);
         result.id = id; result.message = 'Catatan tersimpan';
         break;
+
+      case 'getRekap':
+        var klienSheet = ss.getSheetByName(CONFIG.SHEETS.KLIEN);
+        var kasusSheet = ss.getSheetByName(CONFIG.SHEETS.KASUS);
+        var jadwalSheet = ss.getSheetByName(CONFIG.SHEETS.JADWAL);
+        var klienList = [], kasusList = [], jadwalList = [], klienIdx = {}, kasusIdx = {};
+        var klienData = klienSheet && klienSheet.getLastRow() > 1 ? klienSheet.getDataRange().getValues() : [];
+        for (var ri = 1; ri < klienData.length; ri++) {
+          klienIdx[klienData[ri][0]] = klienList.length;
+          klienList.push({ID: klienData[ri][0], Nama: klienData[ri][1], NoHP: klienData[ri][5], TglDaftar: klienData[ri][17], Keterangan: klienData[ri][18]});
+        }
+        var kasusData = kasusSheet && kasusSheet.getLastRow() > 1 ? kasusSheet.getDataRange().getValues() : [];
+        for (var ri = 1; ri < kasusData.length; ri++) {
+          var kn = klienIdx[kasusData[ri][1]];
+          kasusIdx[kasusData[ri][0]] = kasusList.length;
+          kasusList.push({ID: kasusData[ri][0], NamaKlien: kn !== undefined ? klienList[kn].Nama : '-', TipeKasus: kasusData[ri][3], StatusKasus: kasusData[ri][4], TglDaftar: kasusData[ri][5], NoPerkara: kasusData[ri][6], StatusPerkara: kasusData[ri][7]});
+        }
+        var jadwalData = jadwalSheet && jadwalSheet.getLastRow() > 1 ? jadwalSheet.getDataRange().getValues() : [];
+        for (var ri = 1; ri < jadwalData.length; ri++) {
+          var ks = kasusIdx[jadwalData[ri][1]];
+          jadwalList.push({ID: jadwalData[ri][0], TipeJadwal: jadwalData[ri][2], Tanggal: jadwalData[ri][3], Waktu: jadwalData[ri][4], Lokasi: jadwalData[ri][5], Status: jadwalData[ri][6], NamaKlien: ks !== undefined ? kasusList[ks].NamaKlien : '-', TipeKasus: ks !== undefined ? kasusList[ks].TipeKasus : '-', NoPerkara: ks !== undefined ? kasusList[ks].NoPerkara : '-'});
+        }
+        jadwalList.sort(function(a,b){ return new Date(a.Tanggal) - new Date(b.Tanggal); });
+        result.klien = klienList; result.kasus = kasusList; result.jadwal = jadwalList;
+        break;
+
       case 'getData':
         var sheet = ss.getSheetByName(e.parameter.sheet);
         if (!sheet || sheet.getLastRow() <= 1) { result.data = []; break; }
